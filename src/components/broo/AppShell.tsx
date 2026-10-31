@@ -7,9 +7,13 @@ import HomeScreen from "./screens/HomeScreen";
 import BookingScreen from "./screens/BookingScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import ChatScreen from "./screens/ChatScreen";
+import FoodScreen from "./screens/FoodScreen";
+import AdminScreen from "./screens/AdminScreen";
 import DriverRegisterInfo from "./DriverRegisterInfo";
 import OrderFlow from "./OrderFlow";
+import MerchantDetail from "./MerchantDetail";
 import ChatDetailOverlay from "./ChatDetailOverlay";
+import PromoPopup from "./PromoPopup";
 import { ProfileSheet, NotificationsSheet, ApplySuccessModal } from "./Overlays";
 
 export default function AppShell() {
@@ -17,6 +21,9 @@ export default function AppShell() {
   const modal = useBroo((s) => s.modal);
   const draft = useBroo((s) => s.draft);
   const chatOpen = useBroo((s) => s.chatOpen);
+  const homePromoSeen = useBroo((s) => s.homePromoSeen);
+
+  const showPromo = !homePromoSeen;
 
   return (
     <div className="flex h-full flex-col">
@@ -31,9 +38,11 @@ export default function AppShell() {
             className="absolute inset-0"
           >
             {activeTab === "home" && <HomeScreen />}
+            {activeTab === "food" && <FoodScreen />}
             {activeTab === "booking" && <BookingScreen />}
             {activeTab === "history" && <HistoryScreen />}
             {activeTab === "chat" && <ChatScreen />}
+            {activeTab === "admin" && <AdminScreen />}
           </motion.div>
         </AnimatePresence>
 
@@ -43,6 +52,7 @@ export default function AppShell() {
           {modal === "notifications" && <NotificationsSheet key="notif" />}
           {modal === "driver-info" && <DriverRegisterInfo key="driver" />}
           {modal === "driver-apply-success" && <ApplySuccessModal key="ok" />}
+          {modal === "merchant-detail" && <MerchantDetail key="merchant" />}
         </AnimatePresence>
 
         {/* order flow drawer */}
@@ -50,6 +60,11 @@ export default function AppShell() {
 
         {/* chat overlay (global) */}
         <AnimatePresence>{chatOpen && <ChatDetailOverlay key="chat" />}</AnimatePresence>
+
+        {/* promo popup — appears first time entering Beranda */}
+        <AnimatePresence>
+          {showPromo && activeTab === "home" && <PromoPopup key="promo" />}
+        </AnimatePresence>
       </div>
 
       <BottomNav />

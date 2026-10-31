@@ -12,11 +12,16 @@ export default function HomeScreen() {
   const user = useBroo((s) => s.user);
   const openModal = useBroo((s) => s.openModal);
   const startDraft = useBroo((s) => s.startDraft);
+  const setTab = useBroo((s) => s.setTab);
 
   const [orderType, setOrderType] = useState<OrderType>("now");
 
   const pickService = (id: ServiceId) => {
-    const dest = SAVED_PLACES[0];
+    // MakanBro goes to the Food (kedai) tab, like GoFood
+    if (id === "MakanBro") {
+      setTab("food");
+      return;
+    }
     startDraft({
       service: id,
       orderType,
@@ -25,7 +30,6 @@ export default function HomeScreen() {
       km: 0,
       paymentMethod: "cash",
     });
-    void dest;
   };
 
   return (
@@ -112,9 +116,11 @@ export default function HomeScreen() {
               className="flex flex-col items-center gap-1.5"
             >
               <div
-                className={`grid h-[60px] w-[60px] place-items-center rounded-2xl bg-gradient-to-br ${s.color} text-white shadow-md`}
+                className={`relative grid h-[60px] w-[60px] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${s.color} text-white shadow-lg shadow-black/10`}
               >
-                <BrooIcon name={s.icon} className="h-7 w-7" strokeWidth={2.2} />
+                {/* gloss highlight */}
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/35 to-transparent" />
+                <BrooIcon name={s.icon} className="relative h-7 w-7" strokeWidth={2.1} />
               </div>
               <span className="text-[11px] font-bold leading-tight text-foreground">
                 {s.name}

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useBroo } from "@/lib/store";
 import SplashScreen from "@/components/broo/SplashScreen";
-import PromoPopup from "@/components/broo/PromoPopup";
 import Onboarding from "@/components/broo/Onboarding";
 import AppShell from "@/components/broo/AppShell";
 
@@ -12,7 +11,7 @@ export default function Home() {
   const phase = useBroo((s) => s.phase);
   const setPhase = useBroo((s) => s.setPhase);
   const isRegistered = useBroo((s) => s.isRegistered);
-  const promoSeen = useBroo((s) => s.promoSeen);
+  const homePromoSeen = useBroo((s) => s.homePromoSeen);
 
   // ensure seed runs on first mount
   useEffect(() => {
@@ -58,15 +57,6 @@ export default function Home() {
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* popup promo over everything (first open) */}
-        <AnimatePresence>
-          {phase === "promo" && (
-            <motion.div key="promo-wrap" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <PromoPopup />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* tiny desktop hint */}
@@ -74,11 +64,8 @@ export default function Home() {
         onGoSplash={() => setPhase("splash")}
         onGoOnboarding={() => setPhase("onboarding")}
         onGoApp={() => setPhase(isRegistered ? "app" : "onboarding")}
-        onResetPromo={() => {
-          useBroo.setState({ promoSeen: false });
-          setPhase("promo");
-        }}
-        promoSeen={promoSeen}
+        onResetPromo={() => useBroo.setState({ homePromoSeen: false })}
+        homePromoSeen={homePromoSeen}
       />
     </main>
   );
@@ -89,13 +76,13 @@ function DesktopHint({
   onGoOnboarding,
   onGoApp,
   onResetPromo,
-  promoSeen,
+  homePromoSeen,
 }: {
   onGoSplash: () => void;
   onGoOnboarding: () => void;
   onGoApp: () => void;
   onResetPromo: () => void;
-  promoSeen: boolean;
+  homePromoSeen: boolean;
 }) {
   return (
     <div className="pointer-events-none absolute left-3 top-3 hidden flex-col gap-1.5 lg:flex">
@@ -112,7 +99,7 @@ function DesktopHint({
         <button onClick={onGoApp} className="rounded-lg px-2 py-1 text-left font-semibold text-neutral-600 hover:bg-neutral-200 dark:text-neutral-300 dark:hover:bg-neutral-700">
           ↺ Aplikasi
         </button>
-        {promoSeen && (
+        {homePromoSeen && (
           <button onClick={onResetPromo} className="rounded-lg px-2 py-1 text-left font-semibold text-orange-600 hover:bg-orange-100 dark:hover:bg-orange-900/30">
             ↺ Iklan
           </button>

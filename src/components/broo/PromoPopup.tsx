@@ -31,9 +31,7 @@ const ADS = [
 ];
 
 export default function PromoPopup() {
-  const markPromoSeen = useBroo((s) => s.markPromoSeen);
-  const setPhase = useBroo((s) => s.setPhase);
-  const isRegistered = useBroo((s) => s.isRegistered);
+  const markHomePromoSeen = useBroo((s) => s.markHomePromoSeen);
   const openModal = useBroo((s) => s.openModal);
 
   const [idx, setIdx] = useState(0);
@@ -43,8 +41,7 @@ export default function PromoPopup() {
   const finish = () => {
     setLeaving(true);
     setTimeout(() => {
-      markPromoSeen();
-      setPhase(isRegistered ? "app" : "onboarding");
+      markHomePromoSeen();
     }, 220);
   };
 
@@ -52,7 +49,7 @@ export default function PromoPopup() {
 
   const handleCta = () => {
     if (idx === ADS.length - 1) {
-      // "Lihat Cara Daftar" -> mark promo seen then go onboarding; driver info opens later
+      // "Lihat Cara Daftar" -> close promo then open driver info
       finish();
       setTimeout(() => openModal("driver-info"), 600);
     } else if (idx === 1) {

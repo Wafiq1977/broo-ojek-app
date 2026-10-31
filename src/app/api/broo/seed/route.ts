@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { MERCHANTS } from "@/lib/broo-data";
 
 // Seed promos + demo data (idempotent)
 export async function POST() {
@@ -43,57 +44,32 @@ export async function POST() {
   if (driverCount === 0) {
     await db.driver.createMany({
       data: [
-        {
-          name: "Budi Santoso",
-          phone: "0812xxxxxx01",
-          vehicleType: "motor",
-          vehicleName: "Honda Beat",
-          plate: "B 4521 KXP",
-          rating: 4.9,
-          totalOrders: 1284,
-          status: "available",
-        },
-        {
-          name: "Siti Aminah",
-          phone: "0812xxxxxx02",
-          vehicleType: "mobil",
-          vehicleName: "Toyota Avanza",
-          plate: "B 9987 PQL",
-          rating: 5.0,
-          totalOrders: 932,
-          status: "available",
-        },
-        {
-          name: "Agus Pratama",
-          phone: "0812xxxxxx03",
-          vehicleType: "motor",
-          vehicleName: "Yamaha NMAX",
-          plate: "B 2210 MNZ",
-          rating: 4.8,
-          totalOrders: 2011,
-          status: "busy",
-        },
-        {
-          name: "Dewi Lestari",
-          phone: "0812xxxxxx04",
-          vehicleType: "motor",
-          vehicleName: "Honda Vario",
-          plate: "B 7788 RST",
-          rating: 4.95,
-          totalOrders: 765,
-          status: "available",
-        },
-        {
-          name: "Rizki Ramadhan",
-          phone: "0812xxxxxx05",
-          vehicleType: "mobil",
-          vehicleName: "Honda Brio",
-          plate: "B 6644 TUV",
-          rating: 4.85,
-          totalOrders: 421,
-          status: "available",
-        },
+        { name: "Budi Santoso", phone: "0812xxxxxx01", vehicleType: "motor", vehicleName: "Honda Beat", plate: "B 4521 KXP", rating: 4.9, totalOrders: 1284, status: "available" },
+        { name: "Siti Aminah", phone: "0812xxxxxx02", vehicleType: "mobil", vehicleName: "Toyota Avanza", plate: "B 9987 PQL", rating: 5.0, totalOrders: 932, status: "available" },
+        { name: "Agus Pratama", phone: "0812xxxxxx03", vehicleType: "motor", vehicleName: "Yamaha NMAX", plate: "B 2210 MNZ", rating: 4.8, totalOrders: 2011, status: "busy" },
+        { name: "Dewi Lestari", phone: "0812xxxxxx04", vehicleType: "motor", vehicleName: "Honda Vario", plate: "B 7788 RST", rating: 4.95, totalOrders: 765, status: "available" },
+        { name: "Rizki Ramadhan", phone: "0812xxxxxx05", vehicleType: "mobil", vehicleName: "Honda Brio", plate: "B 6644 TUV", rating: 4.85, totalOrders: 421, status: "available" },
       ],
+    });
+  }
+
+  // merchants
+  const merchantCount = await db.merchant.count();
+  if (merchantCount === 0) {
+    await db.merchant.createMany({
+      data: MERCHANTS.map((m) => ({
+        brooId: m.id,
+        name: m.name,
+        category: m.category,
+        rating: m.rating,
+        eta: m.eta,
+        distanceKm: m.distanceKm,
+        cover: m.cover,
+        logoColor: m.logoColor,
+        promo: m.promo || null,
+        status: "active",
+        menu: m.menu as unknown as object[],
+      })),
     });
   }
 
@@ -101,11 +77,13 @@ export async function POST() {
     ok: true,
     promos: await db.promo.count(),
     drivers: await db.driver.count(),
+    merchants: await db.merchant.count(),
   });
 }
 
 export async function GET() {
   const promos = await db.promo.findMany({ where: { active: true }, orderBy: { order: "asc" } });
   const drivers = await db.driver.findMany({ orderBy: { rating: "desc" } });
-  return NextResponse.json({ promos, drivers });
+  const merchants = await db.merchant.findMany({ where: { status: "active" }, orderBy: { rating: "desc" } });
+  return NextResponse.json({ promos, drivers, merchants });
 }

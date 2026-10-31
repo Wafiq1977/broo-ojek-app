@@ -7,22 +7,32 @@ import { useBroo } from "@/lib/store";
 
 export default function SplashScreen() {
   const setPhase = useBroo((s) => s.setPhase);
-  const promoSeen = useBroo((s) => s.promoSeen);
+  const isRegistered = useBroo((s) => s.isRegistered);
 
   useEffect(() => {
     const t = setTimeout(() => {
-      setPhase(promoSeen ? (useBroo.getState().isRegistered ? "app" : "onboarding") : "promo");
+      setPhase(isRegistered ? "app" : "onboarding");
     }, 2600);
     return () => clearTimeout(t);
-  }, [setPhase, promoSeen]);
+  }, [setPhase, isRegistered]);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-broo-gradient">
-      {/* decorative glow */}
+    <div className="relative h-full w-full overflow-hidden bg-broo-dark-gradient">
+      {/* ambient glow */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-white/20 blur-3xl" />
-        <div className="absolute bottom-10 -left-20 h-72 w-72 rounded-full bg-amber-300/30 blur-3xl" />
+        <div className="absolute -top-24 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
+        <div className="absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-amber-500/20 blur-3xl" />
       </div>
+
+      {/* subtle grid texture */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,.6) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.6) 1px,transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-8">
         <motion.div
@@ -31,15 +41,19 @@ export default function SplashScreen() {
           transition={{ type: "spring", stiffness: 200, damping: 16, delay: 0.1 }}
           className="relative"
         >
-          {/* pulse ring */}
-          <span className="absolute inset-0 rounded-[2rem] bg-white/30 broo-pulse-ring" />
-          <div className="relative grid h-28 w-28 place-items-center rounded-[2rem] bg-white shadow-2xl shadow-black/20">
+          {/* pulse ring behind logo */}
+          <span className="absolute inset-0 rounded-full bg-primary/40 broo-pulse-ring" />
+          <span
+            className="absolute inset-0 rounded-full bg-primary/30 broo-pulse-ring"
+            style={{ animationDelay: "0.8s" }}
+          />
+          <div className="relative grid place-items-center">
             <Image
               src="/broo-logo.png"
               alt="Broo"
-              width={84}
-              height={84}
-              className="drop-shadow-sm"
+              width={120}
+              height={120}
+              className="drop-shadow-[0_8px_24px_rgba(249,115,22,0.45)]"
               priority
             />
           </div>
@@ -49,10 +63,10 @@ export default function SplashScreen() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-8 text-center"
+          className="mt-7 text-center"
         >
-          <h1 className="text-4xl font-black tracking-tight text-white">Broo</h1>
-          <p className="mt-1.5 text-sm font-medium text-white/80">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white">Broo</h1>
+          <p className="mt-1.5 text-sm font-medium text-white/70">
             Ojek online dari rakyat untuk rakyat
           </p>
         </motion.div>
@@ -61,10 +75,10 @@ export default function SplashScreen() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.4 }}
-          className="mt-3 flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 backdrop-blur"
+          className="mt-3 flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 backdrop-blur"
         >
-          <span className="h-2 w-2 rounded-full bg-emerald-300" />
-          <span className="text-xs font-semibold text-white">
+          <span className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="text-xs font-semibold text-white/85">
             Tanpa potongan biaya
           </span>
         </motion.div>
@@ -82,7 +96,7 @@ export default function SplashScreen() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-xs font-medium text-white/70"
+          className="text-xs font-medium text-white/60"
         >
           Menyiapkan perjalananmu…
         </motion.p>

@@ -67,6 +67,11 @@ import {
   Wallet2,
   ChevronUp,
   Quote,
+  Flame,
+  LayoutDashboard,
+  Users,
+  TrendingUp,
+  Package,
   type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -138,6 +143,11 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   Wallet2,
   ChevronUp,
   Quote,
+  Flame,
+  LayoutDashboard,
+  Users,
+  TrendingUp,
+  Package,
 };
 
 export function BrooIcon({

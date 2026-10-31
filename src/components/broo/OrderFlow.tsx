@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBroo } from "@/lib/store";
 import { BrooIcon } from "./BrooIcon";
+import BrooMap from "./BrooMap";
 import {
   SERVICE_MAP,
   SAVED_PLACES,
@@ -407,6 +408,18 @@ export default function OrderFlow() {
                   exit={{ opacity: 0 }}
                   className="p-5"
                 >
+                  {/* MAP */}
+                  <div className="relative mb-4 h-44 w-full overflow-hidden rounded-3xl border border-border">
+                    <BrooMap stage={stage} vehicleType={assigned.vehicleType as "motor" | "mobil"} className="h-full w-full" />
+                    <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
+                      {stage === "assigned" ? "Driver menuju jemput" : stage === "arrived" ? "Driver tiba di lokasi" : "Selesai"}
+                    </div>
+                    <div className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-emerald-600 shadow">
+                      <BrooIcon name="Navigation" className="mr-1 inline h-3 w-3" />
+                      {Math.max(1, Math.round(km * 2))} mnt
+                    </div>
+                  </div>
+
                   {/* status banner */}
                   <div className="mb-4 flex items-center gap-2 rounded-2xl bg-emerald-500/10 p-3 text-emerald-700 dark:text-emerald-300">
                     <BrooIcon name="CheckCircle2" className="h-5 w-5 shrink-0" />
@@ -491,7 +504,7 @@ export default function OrderFlow() {
                       </div>
                     </div>
                     <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-                      <span className="text-xs text-muted-foreground">Total bayar ({payment === "cash" ? "Tunai" : payment === "qris" ? "QRIS" : "BrooPay"})</span>
+                      <span className="text-xs text-muted-foreground">Total bayar ({payment === "cash" ? "Tunai" : "QRIS"})</span>
                       <span className="text-lg font-black text-primary">{formatIDR(total)}</span>
                     </div>
                   </div>

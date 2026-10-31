@@ -1,16 +1,17 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { ServiceId, OrderType } from "./broo-data";
+import type { ServiceId, OrderType, Merchant, MenuItem } from "./broo-data";
 
-export type AppPhase = "splash" | "promo" | "onboarding" | "auth" | "app";
-export type Tab = "home" | "booking" | "history" | "chat";
+export type AppPhase = "splash" | "onboarding" | "app";
+export type Tab = "home" | "booking" | "history" | "chat" | "food" | "admin";
 export type Modal =
   | null
   | "driver-info"
   | "order-flow"
   | "profile"
   | "notifications"
-  | "driver-apply-success";
+  | "driver-apply-success"
+  | "merchant-detail";
 
 export interface BrooUser {
   id: string;
@@ -29,9 +30,19 @@ export interface OrderDraft {
   destination: string;
   detail?: string;
   km: number;
-  paymentMethod: "cash" | "wallet" | "qris";
+  paymentMethod: "cash" | "qris";
   note?: string;
   scheduledAt?: string; // ISO for booking
+  // food order extras
+  merchantId?: string;
+  merchantName?: string;
+  cartItems?: CartItem[];
+  cartTotal?: number;
+}
+
+export interface CartItem {
+  item: MenuItem;
+  qty: number;
 }
 
 interface ChatOpen {
@@ -44,7 +55,8 @@ interface ChatOpen {
 interface BrooState {
   // lifecycle
   phase: AppPhase;
-  promoSeen: boolean;
+  // promo popup shown when first entering Beranda
+  homePromoSeen: boolean;
 
   // user
   user: BrooUser | null;
@@ -58,13 +70,18 @@ interface BrooState {
   // order draft
   draft: OrderDraft | null;
 
+  // makanbro
+  activeMerchant: Merchant | null;
+  cart: CartItem[];
+  cartMerchantId: string | null;
+
   // refresh trigger for lists
   historyNonce: number;
   chatNonce: number;
 
   // actions
   setPhase: (p: AppPhase) => void;
-  markPromoSeen: () => void;
+  markHomePromoSeen: () => void;
   setUser: (u: BrooUser) => void;
   logout: () => void;
   setTab: (t: Tab) => void;
@@ -76,24 +93,49 @@ interface BrooState {
   clearDraft: () => void;
   bumpHistory: () => void;
   bumpChat: () => void;
+  // merchant/cart
+  openMerchant: (m: Merchant) => void;
+  closeMerchant: () => void;
+  addToCart: (item: MenuItem) => void;
+  decFromCart: (itemId: string) => void;
+  removeCartItem: (itemId: string) => void;
+  clearCart: () => void;
+}
+
+function cartAdd(cart: CartItem[], item: MenuItem, merchantId: string): CartItem[] {
+  const existing = cart.find((c) => c.item.id === item.id);
+  if (existing) {
+    return cart.map((c) => (c.item.id === item.id ? { ...c, qty: c.qty + 1 } : c));
+  }
+  return [...cart, { item, qty: 1 }];
+}
+
+function cartDec(cart: CartItem[], itemId: string): CartItem[] {
+  const existing = cart.find((c) => c.item.id === itemId);
+  if (!existing) return cart;
+  if (existing.qty <= 1) return cart.filter((c) => c.item.id !== itemId);
+  return cart.map((c) => (c.item.id === itemId ? { ...c, qty: c.qty - 1 } : c));
 }
 
 export const useBroo = create<BrooState>()(
   persist(
     (set) => ({
       phase: "splash",
-      promoSeen: false,
+      homePromoSeen: false,
       user: null,
       isRegistered: false,
       activeTab: "home",
       modal: null,
       chatOpen: null,
       draft: null,
+      activeMerchant: null,
+      cart: [],
+      cartMerchantId: null,
       historyNonce: 0,
       chatNonce: 0,
 
       setPhase: (p) => set({ phase: p }),
-      markPromoSeen: () => set({ promoSeen: true }),
+      markHomePromoSeen: () => set({ homePromoSeen: true }),
       setUser: (u) => set({ user: u, isRegistered: true }),
       logout: () =>
         set({
@@ -104,6 +146,10 @@ export const useBroo = create<BrooState>()(
           modal: null,
           chatOpen: null,
           draft: null,
+          activeMerchant: null,
+          cart: [],
+          cartMerchantId: null,
+          homePromoSeen: false,
         }),
       setTab: (t) => set({ activeTab: t, modal: null }),
       openModal: (m) => set({ modal: m }),
@@ -114,15 +160,34 @@ export const useBroo = create<BrooState>()(
       clearDraft: () => set({ draft: null, modal: null }),
       bumpHistory: () => set((s) => ({ historyNonce: s.historyNonce + 1 })),
       bumpChat: () => set((s) => ({ chatNonce: s.chatNonce + 1 })),
+      openMerchant: (m) => set({ activeMerchant: m, modal: "merchant-detail" }),
+      closeMerchant: () => set({ activeMerchant: null, modal: null }),
+      addToCart: (item) =>
+        set((s) => ({
+          cart: cartAdd(s.cart, item, s.activeMerchant?.id || ""),
+          cartMerchantId: s.cartMerchantId || s.activeMerchant?.id || null,
+        })),
+      decFromCart: (itemId) =>
+        set((s) => ({ cart: cartDec(s.cart, itemId) })),
+      removeCartItem: (itemId) =>
+        set((s) => ({ cart: s.cart.filter((c) => c.item.id !== itemId) })),
+      clearCart: () => set({ cart: [], cartMerchantId: null }),
     }),
     {
       name: "broo-app",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
-        promoSeen: s.promoSeen,
+        homePromoSeen: s.homePromoSeen,
         user: s.user,
         isRegistered: s.isRegistered,
       }),
     }
   )
 );
+
+export function cartCount(cart: CartItem[]): number {
+  return cart.reduce((a, c) => a + c.qty, 0);
+}
+export function cartTotal(cart: CartItem[]): number {
+  return cart.reduce((a, c) => a + c.qty * c.item.price, 0);
+}

@@ -21,6 +21,8 @@ interface Order {
   vehicleType: string | null;
   distanceKm: number;
   createdAt: string;
+  kind?: "ride" | "food";
+  merchantName?: string;
 }
 
 export default function HistoryScreen() {
@@ -34,9 +36,34 @@ export default function HistoryScreen() {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/broo/orders?userId=${user.id}`);
-      const data = await res.json();
-      if (data.ok) setOrders(data.orders);
+      const [rideRes, foodRes] = await Promise.all([
+        fetch(`/api/broo/orders?userId=${user.id}`),
+        fetch(`/api/broo/food-orders?userId=${user.id}`),
+      ]);
+      const rideData = await rideRes.json();
+      const foodData = await foodRes.json();
+      const rides: Order[] = (rideData.ok ? rideData.orders : []).map((o: Order) => ({ ...o, kind: "ride" as const }));
+      const foods: Order[] = (foodData.ok ? foodData.orders : []).map((o: { id: string; merchantName: string; total: number; status: string; createdAt: string; driverName: string | null }) => ({
+        id: o.id,
+        service: "MakanBro",
+        pickup: o.merchantName,
+        destination: "Antar ke lokasimu",
+        price: o.total,
+        fee: 0,
+        status: o.status,
+        rating: null,
+        paymentMethod: "cash",
+        driverName: o.driverName,
+        vehicleType: "motor",
+        distanceKm: 0,
+        createdAt: o.createdAt,
+        kind: "food" as const,
+        merchantName: o.merchantName,
+      }));
+      const merged = [...rides, ...foods].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setOrders(merged);
     } catch {
       /* ignore */
     } finally {
@@ -148,7 +175,7 @@ export default function HistoryScreen() {
                         <OrderStatus status={o.status} />
                       </div>
                       <p className="mt-0.5 text-[11px] text-muted-foreground">
-                        {fmt(o.createdAt)} • {o.distanceKm} km
+                        {fmt(o.createdAt)}{o.kind === "ride" ? ` • ${o.distanceKm} km` : " • Makanan"}
                       </p>
                     </div>
                     <p className="text-sm font-black text-foreground">{formatIDR(o.price)}</p>
@@ -157,7 +184,9 @@ export default function HistoryScreen() {
                   <div className="mt-2.5 rounded-xl bg-secondary/40 p-2.5 text-[11px]">
                     <p className="flex items-center gap-1.5 text-muted-foreground">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      <span className="truncate">{o.pickup}</span>
+                      <span className="truncate">
+                        {o.kind === "food" ? `🍜 ${o.pickup}` : o.pickup}
+                      </span>
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">
                       <BrooIcon name="MapPin" className="h-3 w-3 text-primary" />

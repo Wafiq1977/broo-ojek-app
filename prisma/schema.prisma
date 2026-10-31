@@ -125,3 +125,37 @@ model Promo {
   active    Boolean @default(true)
   order     Int     @default(0)
 }
+
+model Merchant {
+  id          String  @id @default(cuid())
+  brooId      String  @unique // gacoan, geprek, etc
+  name        String
+  category    String
+  rating      Float   @default(4.7)
+  eta         String
+  distanceKm  Float
+  cover       String
+  logoColor   String
+  promo       String?
+  status      String  @default("active") // active | inactive
+  createdAt   DateTime @default(now())
+  menu        Json    @default("[]")
+}
+
+model FoodOrder {
+  id           String   @id @default(cuid())
+  userId       String
+  merchantId   String
+  merchantName String
+  items        Json     // [{id,name,price,qty}]
+  total        Int
+  deliveryFee  Int      @default(0)
+  fee          Int      @default(0)
+  paymentMethod String  @default("cash")
+  status       String   @default("completed") // searching | accepted | ongoing | completed | cancelled
+  driverName   String?
+  rating       Int?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+}

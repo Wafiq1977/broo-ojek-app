@@ -6,6 +6,7 @@ import { BrooIcon } from "./BrooIcon";
 
 const ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: "home", label: "Beranda", icon: "Home" },
+  { id: "food", label: "MakanBro", icon: "UtensilsCrossed" },
   { id: "booking", label: "Booking", icon: "CalendarClock" },
   { id: "history", label: "Riwayat", icon: "ReceiptText" },
   { id: "chat", label: "Obrolan", icon: "MessageCircle" },
@@ -17,7 +18,7 @@ export default function BottomNav() {
 
   return (
     <nav className="relative z-30 shrink-0 border-t border-border bg-card/95 backdrop-blur-xl safe-bottom">
-      <div className="grid grid-cols-4 px-2 pt-1.5 pb-1.5">
+      <div className="grid grid-cols-5 px-1.5 pt-1.5 pb-1.5">
         {ITEMS.map((it) => {
           const active = activeTab === it.id;
           return (
@@ -30,19 +31,19 @@ export default function BottomNav() {
               {active && (
                 <motion.span
                   layoutId="nav-pill"
-                  className="absolute -top-1.5 h-1 w-8 rounded-full bg-primary"
+                  className="absolute -top-1.5 h-1 w-7 rounded-full bg-primary"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <BrooIcon
                 name={it.icon}
-                className={`h-[22px] w-[22px] transition-colors ${
+                className={`h-[21px] w-[21px] transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
                 strokeWidth={active ? 2.4 : 2}
               />
               <span
-                className={`text-[10.5px] font-semibold transition-colors ${
+                className={`text-[10px] font-semibold transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
