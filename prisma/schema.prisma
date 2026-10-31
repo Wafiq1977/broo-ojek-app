@@ -1,0 +1,127 @@
+// Broo — Prisma schema
+// Ojek online dari rakyat untuk rakyat
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String?
+  password  String?
+  avatar    String?
+  address   String?
+  provider  String   @default("phone") // phone | google
+  createdAt DateTime @default(now())
+  orders    Order[]
+  bookings Booking[]
+  chats     ChatConversation[]
+}
+
+model Driver {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  vehicleType String // motor | mobil
+  vehicleName String
+  plate       String
+  rating      Float    @default(5.0)
+  totalOrders Int      @default(0)
+  status      String   @default("available") // available | busy | offline
+  photo       String?
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id           String    @id @default(cuid())
+  userId       String
+  service      String // MotorBro | MobilBro | MakanBro | TitipBro | TolongBro
+  orderType    String // now | booking
+  pickup       String
+  destination  String
+  detail       String?
+  distanceKm   Float
+  price        Int
+  fee          Int      @default(0)
+  paymentMethod String  @default("cash") // cash | wallet | qris
+  status       String   @default("completed") // searching | accepted | ongoing | completed | cancelled
+  rating       Int?
+  note         String?
+  driverId     String?
+  driverName   String?
+  driverPhoto  String?
+  vehicleType  String?
+  createdAt    DateTime @default(now())
+  scheduledAt  DateTime?
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Booking {
+  id          String   @id @default(cuid())
+  userId      String
+  service     String
+  pickup      String
+  destination String
+  detail      String?
+  price       Int
+  scheduledAt DateTime
+  status      String   @default("scheduled") // scheduled | active | done | cancelled
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ChatConversation {
+  id          String   @id @default(cuid())
+  userId      String
+  driverId    String?
+  driverName  String
+  driverPhoto String?
+  service     String
+  orderId     String?
+  lastMessage String
+  lastAt      DateTime @default(now())
+  unread      Int      @default(0)
+  messages    Json     @default("[]")
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model DriverApplication {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  ktp          String
+  vehicleType  String // motor | mobil
+  vehicleBrand String
+  plate        String
+  stnk         String
+  sim          String
+  city         String
+  experience   String
+  channel      String // admin | corporate
+  status       String   @default("pending") // pending | reviewing | approved | rejected
+  createdAt    DateTime @default(now())
+}
+
+model Promo {
+  id        String  @id @default(cuid())
+  title     String
+  subtitle  String
+  image     String
+  cta       String  @default("Pesan Sekarang")
+  active    Boolean @default(true)
+  order     Int     @default(0)
+}
