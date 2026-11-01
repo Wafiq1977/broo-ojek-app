@@ -12,34 +12,38 @@ interface ServiceIconProps {
 }
 
 /**
- * Professional service icon: Lucide icon rendered with BOLD WHITE STROKE
- * on a rich gradient tile with gloss + inner ring + depth shadow.
- * Looks like a modern app icon (Grab/Gojek style) — realistic, bold, professional.
- * Uses stroke only (no fill) so the icon shape stays crisp & recognizable.
+ * Premium 3D service icon — bold white Lucide icon on a rich gradient tile
+ * with strong gloss highlight, inner ring, depth shadow, and subtle inner glow.
+ * Modern app-icon aesthetic (Grab/Gojek style).
  */
 export function ServiceIcon({
   icon,
   gradient,
-  size = 62,
+  size = 64,
   className = "",
   glow = false,
 }: ServiceIconProps) {
   return (
     <div
-      className={`relative grid place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} shadow-broo ${glow ? "shadow-broo-primary" : ""} ${className}`}
+      className={`relative grid place-items-center overflow-hidden rounded-[1.4rem] bg-gradient-to-br ${gradient} ${glow ? "shadow-broo-primary" : "shadow-broo"} ${className}`}
       style={{ width: size, height: size }}
     >
-      {/* gloss highlight (top half) */}
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/50 to-transparent" />
+      {/* top gloss highlight (bright) */}
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-[55%] bg-gradient-to-b from-white/55 via-white/15 to-transparent" />
       {/* inner ring */}
-      <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/30" />
+      <span className="pointer-events-none absolute inset-0 rounded-[1.4rem] ring-1 ring-inset ring-white/35" />
       {/* bottom depth shadow */}
-      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/20 to-transparent" />
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/25 to-transparent" />
+      {/* subtle inner glow behind icon */}
+      <span className="pointer-events-none absolute inset-0 grid place-items-center">
+        <span className="h-1/2 w-1/2 rounded-full bg-white/15 blur-md" />
+      </span>
+      {/* the icon — bold white stroke */}
       <BrooIcon
         name={icon}
-        className="relative text-white"
-        style={{ width: size * 0.48, height: size * 0.48 }}
-        strokeWidth={2.4}
+        className="relative text-white drop-shadow-[0_2px_3px_rgba(0,0,0,0.4)]"
+        style={{ width: size * 0.5, height: size * 0.5 }}
+        strokeWidth={2.3}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -61,10 +65,10 @@ export function ServiceIconMini({
     <div
       className={`relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-gradient-to-br ${gradient} text-white shadow-broo ${className}`}
     >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/45 to-transparent" />
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/50 to-transparent" />
       <BrooIcon
         name={icon}
-        className="relative h-[18px] w-[18px]"
+        className="relative h-[18px] w-[18px] drop-shadow-sm"
         strokeWidth={2.5}
         strokeLinecap="round"
         strokeLinejoin="round"
