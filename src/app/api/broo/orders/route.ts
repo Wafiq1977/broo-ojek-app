@@ -81,3 +81,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 500 });
   }
 }
+
+// PATCH — set rating for a completed order
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, rating } = body ?? {};
+    if (!id) return NextResponse.json({ ok: false, error: "id wajib" }, { status: 400 });
+    const r = Number(rating) || 5;
+    const order = await db.order.update({
+      where: { id },
+      data: { rating: Math.min(5, Math.max(1, r)) },
+    });
+    return NextResponse.json({ ok: true, order });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 500 });
+  }
+}

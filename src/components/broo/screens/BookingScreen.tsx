@@ -2,10 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useBroo } from "@/lib/store";
 import { BrooIcon } from "../BrooIcon";
-import { SERVICE_MAP, formatIDR } from "@/lib/broo-data";
+import { formatIDR, type ServiceId } from "@/lib/broo-data";
 import { toast } from "sonner";
+
+const SERVICE_IMG: Record<string, string> = {
+  MotorBro: "/icons/motor.png",
+  MobilBro: "/icons/mobil.png",
+  MakanBro: "/icons/makanan.png",
+  TitipBro: "/icons/jastip.png",
+  TolongBro: "/icons/tolong.png",
+};
+
+const BOOK_SERVICES: ServiceId[] = ["MotorBro", "MobilBro", "TitipBro", "TolongBro"];
 
 interface Booking {
   id: string;
@@ -104,11 +115,45 @@ export default function BookingScreen() {
           <div className="flex-1">
             <p className="text-sm font-bold">Buat Booking Baru</p>
             <p className="text-[11px] text-white/80">
-              Pesan jadwal untuk MotorBro, MobilBro & lainnya
+              Pesan jadwal untuk MotorBro, MobilBro, TitipBro & TolongBro
             </p>
           </div>
           <BrooIcon name="ChevronRight" className="h-5 w-5" />
         </button>
+      </div>
+
+      {/* quick pick booking service */}
+      <div className="px-5 pt-3">
+        <p className="mb-2 text-xs font-bold text-foreground/70">Pilih layanan untuk booking</p>
+        <div className="flex gap-2 overflow-x-auto no-scrollbar">
+          {BOOK_SERVICES.map((sid) => (
+            <button
+              key={sid}
+              onClick={() =>
+                startDraft({
+                  service: sid,
+                  orderType: "booking",
+                  pickup: "Lokasi kamu sekarang",
+                  destination: "",
+                  km: 0,
+                  paymentMethod: "cash",
+                })
+              }
+              className="flex w-16 shrink-0 flex-col items-center gap-1 rounded-2xl border border-border bg-card p-2 tap-scale"
+            >
+              <div className="relative h-10 w-10">
+                <Image
+                  src={SERVICE_IMG[sid]}
+                  alt={sid}
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+              <span className="text-[9px] font-bold text-foreground">{sid}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex-1 px-5 pt-4 pb-8">
@@ -136,7 +181,6 @@ export default function BookingScreen() {
         ) : (
           <div className="space-y-2.5">
             {bookings.map((b) => {
-              const s = SERVICE_MAP[b.service as keyof typeof SERVICE_MAP];
               const cancelled = b.status === "cancelled";
               return (
                 <motion.div
@@ -149,8 +193,14 @@ export default function BookingScreen() {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${s?.color} text-white`}>
-                      <BrooIcon name={s?.icon || "Car"} className="h-6 w-6" />
+                    <div className="relative h-11 w-11 shrink-0">
+                      <Image
+                        src={SERVICE_IMG[b.service] || "/icons/motor.png"}
+                        alt={b.service}
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">

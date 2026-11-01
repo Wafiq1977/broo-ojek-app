@@ -1,11 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { useBroo } from "@/lib/store";
 import { BrooIcon } from "../BrooIcon";
 import { SERVICE_MAP, formatIDR } from "@/lib/broo-data";
 import { toast } from "sonner";
+
+const SERVICE_IMG: Record<string, string> = {
+  MotorBro: "/icons/motor.png",
+  MobilBro: "/icons/mobil.png",
+  MakanBro: "/icons/makanan.png",
+  TitipBro: "/icons/jastip.png",
+  TolongBro: "/icons/tolong.png",
+};
 
 interface Order {
   id: string;
@@ -31,6 +40,8 @@ export default function HistoryScreen() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "completed" | "cancelled">("all");
+  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
+  const [ratingStars, setRatingStars] = useState(5);
 
   const load = async () => {
     if (!user) return;
@@ -80,7 +91,32 @@ export default function HistoryScreen() {
   );
 
   const rate = (o: Order) => {
-    toast.success(`Terima kasih! Rating 5 ⭐ untuk ${o.driverName}`);
+    setRatingStars(5);
+    setRatingOrderId(o.id);
+  };
+
+  const submitRating = async () => {
+    if (!ratingOrderId) return;
+    const oid = ratingOrderId;
+    try {
+      // try ride orders first, then food orders
+      await fetch("/api/broo/orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: oid, rating: ratingStars }),
+      });
+      // also try food order endpoint
+      await fetch("/api/broo/food-orders", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: oid, rating: ratingStars }),
+      });
+      toast.success(`Terima kasih! Rating ${ratingStars} ⭐ terkirim`);
+      setRatingOrderId(null);
+      load();
+    } catch {
+      toast.error("Gagal mengirim rating");
+    }
   };
 
   const fmt = (iso: string) =>
@@ -162,7 +198,6 @@ export default function HistoryScreen() {
         ) : (
           <div className="space-y-2.5">
             {filtered.map((o) => {
-              const s = SERVICE_MAP[o.service as keyof typeof SERVICE_MAP];
               const done = o.status === "completed";
               return (
                 <motion.div
@@ -173,8 +208,14 @@ export default function HistoryScreen() {
                   className="rounded-2xl border border-border bg-card p-3.5"
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br ${s?.color} text-white`}>
-                      <BrooIcon name={s?.icon || "Car"} className="h-6 w-6" />
+                    <div className="relative h-11 w-11 shrink-0">
+                      <Image
+                        src={SERVICE_IMG[o.service] || "/icons/motor.png"}
+                        alt={o.service}
+                        fill
+                        className="object-contain"
+                        unoptimized
+                      />
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
@@ -207,11 +248,7 @@ export default function HistoryScreen() {
                         <div className="grid h-6 w-6 place-items-center rounded-full bg-broo-gradient text-[10px] font-black text-white">
                           {o.driverName[0]}
                         </div>
-                        {o.driverName} •{" "}
-                        <span className="inline-flex items-center gap-0.5 font-bold text-foreground">
-                          <BrooIcon name="Star" className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          5.0
-                        </span>
+                        {o.driverName}
                       </div>
                       {!o.rating ? (
                         <button
@@ -221,7 +258,10 @@ export default function HistoryScreen() {
                           Beri Rating
                         </button>
                       ) : (
-                        <span className="text-[11px] font-bold text-emerald-600">Sudah dirating</span>
+                        <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-amber-600">
+                          <BrooIcon name="Star" className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          {o.rating}
+                        </span>
                       )}
                     </div>
                   )}
@@ -238,6 +278,73 @@ export default function HistoryScreen() {
           </div>
         )}
       </div>
+
+      {/* Rating modal — realtime star picker */}
+      <AnimatePresence>
+        {ratingOrderId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setRatingOrderId(null)}
+            className="absolute inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-[320px] rounded-3xl bg-card p-6 text-center shadow-2xl"
+            >
+              <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-broo-gradient text-white">
+                <BrooIcon name="Star" className="h-7 w-7 fill-white" />
+              </div>
+              <h3 className="mt-3 text-lg font-black text-foreground">Beri Rating</h3>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Bagaimana pengalaman perjalananmu?
+              </p>
+              <div className="mt-4 flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setRatingStars(n)}
+                    className="tap-scale"
+                    aria-label={`Rating ${n} bintang`}
+                  >
+                    <motion.span
+                      animate={{ scale: n <= ratingStars ? 1.15 : 1 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 18 }}
+                    >
+                      <BrooIcon
+                        name="Star"
+                        className={`h-9 w-9 transition-colors ${
+                          n <= ratingStars
+                            ? "fill-amber-400 text-amber-400"
+                            : "fill-none text-muted-foreground/40"
+                        }`}
+                      />
+                    </motion.span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-5 flex gap-2">
+                <button
+                  onClick={() => setRatingOrderId(null)}
+                  className="flex-1 rounded-2xl border border-border bg-secondary py-3 text-sm font-semibold text-foreground tap-scale"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={submitRating}
+                  className="flex-[2] rounded-2xl bg-broo-gradient py-3 text-sm font-bold text-white shadow-lg shadow-primary/30 tap-scale"
+                >
+                  Kirim Rating {ratingStars} ⭐
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
