@@ -16,36 +16,42 @@ export default function BottomNav() {
   const setTab = useBroo((s) => s.setTab);
 
   return (
-    <nav className="relative z-30 shrink-0 border-t border-border bg-card safe-bottom">
-      <div className="grid grid-cols-4 px-2 pt-2.5 pb-2">
+    <nav className="relative z-30 shrink-0 border-t border-border bg-card/95 backdrop-blur-xl safe-bottom">
+      <div className="grid grid-cols-4 px-2 pt-2 pb-2">
         {ITEMS.map((it) => {
           const active = activeTab === it.id;
           return (
             <button
               key={it.id}
               onClick={() => setTab(it.id)}
-              className="relative flex flex-col items-center gap-1 py-1 tap-scale"
+              className="relative flex flex-col items-center justify-center gap-1 py-1"
               aria-label={it.label}
             >
-              {/* Floating island circle — only on active, slides between tabs */}
+              {/* Active pill background — smooth slide */}
               {active && (
                 <motion.span
-                  layoutId="nav-island"
-                  className="pointer-events-none absolute -top-5 grid h-12 w-12 place-items-center rounded-full bg-card shadow-broo-lg ring-1 ring-border/50"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  layoutId="nav-active-pill"
+                  className="pointer-events-none absolute inset-x-2 inset-y-0 rounded-2xl bg-primary/10"
+                  transition={{ type: "spring", stiffness: 420, damping: 34 }}
                 />
               )}
-              {/* Icon: filled brand color when active, outline gray when not */}
-              <BrooIcon
-                name={it.icon}
-                className={`relative h-[22px] w-[22px] transition-colors duration-200 ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
-                strokeWidth={active ? 2.4 : 2}
-                fill={active ? "oklch(0.68 0.19 45 / 0.18)" : "none"}
-              />
+              {/* Icon with smooth scale + color morph */}
+              <motion.span
+                animate={{ scale: active ? 1.08 : 1, y: active ? -1 : 0 }}
+                transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                className="relative"
+              >
+                <BrooIcon
+                  name={it.icon}
+                  className={`h-[22px] w-[22px] transition-colors duration-200 ${
+                    active ? "text-primary" : "text-muted-foreground"
+                  }`}
+                  strokeWidth={active ? 2.5 : 2}
+                  fill={active ? "oklch(0.68 0.19 45 / 0.12)" : "none"}
+                />
+              </motion.span>
               <span
-                className={`relative text-[10px] font-semibold transition-colors ${
+                className={`relative text-[10px] font-semibold transition-colors duration-200 ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >

@@ -10,7 +10,6 @@ export function ProfileSheet() {
   const user = useBroo((s) => s.user);
   const closeModal = useBroo((s) => s.closeModal);
   const openModal = useBroo((s) => s.openModal);
-  const setTab = useBroo((s) => s.setTab);
   const logout = useBroo((s) => s.logout);
   const setPhase = useBroo((s) => s.setPhase);
 
@@ -25,12 +24,6 @@ export function ProfileSheet() {
     { icon: "Headphones", label: "Bantuan", action: () => toast.info("Hubungi 0800-1234-BROO") },
     { icon: "Settings", label: "Pengaturan", action: () => toast.info("Pengaturan aplikasi") },
   ];
-
-  const goAdmin = () => {
-    closeModal();
-    setTab("admin");
-    toast.success("Masuk mode Admin Broo");
-  };
 
   return (
     <motion.div
@@ -99,21 +92,6 @@ export function ProfileSheet() {
               <p className="text-[11px] text-white/75">100% tarif untukmu, tanpa komisi</p>
             </div>
             <BrooIcon name="ChevronRight" className="h-5 w-5" />
-          </button>
-
-          {/* admin panel cta */}
-          <button
-            onClick={goAdmin}
-            className="mt-2 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-primary/30 bg-primary/5 p-3.5 text-left tap-scale"
-          >
-            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-broo-gradient text-white">
-              <BrooIcon name="LayoutDashboard" className="h-6 w-6" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-black text-foreground">Admin Broo</p>
-              <p className="text-[11px] text-muted-foreground">Kelola driver, kedai & transaksi</p>
-            </div>
-            <BrooIcon name="ChevronRight" className="h-5 w-5 text-primary" />
           </button>
 
           {/* menu */}

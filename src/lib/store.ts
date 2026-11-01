@@ -56,7 +56,7 @@ interface ChatOpen {
 interface BrooState {
   // lifecycle
   phase: AppPhase;
-  // promo popup shown when first entering Beranda
+  // promo popup — session only (resets each app open, not persisted)
   homePromoSeen: boolean;
 
   // user
@@ -178,7 +178,6 @@ export const useBroo = create<BrooState>()(
       name: "broo-app",
       storage: createJSONStorage(() => localStorage),
       partialize: (s) => ({
-        homePromoSeen: s.homePromoSeen,
         user: s.user,
         isRegistered: s.isRegistered,
       }),

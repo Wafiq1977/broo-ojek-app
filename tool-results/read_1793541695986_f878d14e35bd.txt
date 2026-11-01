@@ -1,0 +1,763 @@
+     1→"use client";
+     2→
+     3→import { useState, useEffect } from "react";
+     4→import { motion, AnimatePresence } from "framer-motion";
+     5→import { useBroo } from "@/lib/store";
+     6→import { BrooIcon } from "./BrooIcon";
+     7→import { ServiceIcon } from "./ServiceIcon";
+     8→import BrooMap from "./BrooMap";
+     9→import {
+    10→  SERVICES,
+    11→  SERVICE_MAP,
+    12→  SAVED_PLACES,
+    13→  PAYMENT_METHODS,
+    14→  formatIDR,
+    15→  priceOf,
+    16→  type OrderType,
+    17→  type ServiceId,
+    18→} from "@/lib/broo-data";
+    19→import { toast } from "sonner";
+    20→
+    21→type Stage =
+    22→  | "location"
+    23→  | "service"
+    24→  | "confirm"
+    25→  | "confirming"
+    26→  | "searching"
+    27→  | "assigned"
+    28→  | "arrived"
+    29→  | "done";
+    30→
+    31→export default function OrderFlow() {
+    32→  const draft = useBroo((s) => s.draft);
+    33→  const clearDraft = useBroo((s) => s.clearDraft);
+    34→  const user = useBroo((s) => s.user);
+    35→  const bumpHistory = useBroo((s) => s.bumpHistory);
+    36→  const openChat = useBroo((s) => s.openChat);
+    37→  const openModal = useBroo((s) => s.openModal);
+    38→
+    39→  const [stage, setStage] = useState<Stage>(
+    40→    draft?.destination ? "service" : "location"
+    41→  );
+    42→  const [pickup, setPickup] = useState(draft?.pickup || "Lokasi kamu sekarang");
+    43→  const [destination, setDestination] = useState(draft?.destination || "");
+    44→  const [km, setKm] = useState(draft?.km || 0);
+    45→  const [note, setNote] = useState("");
+    46→  const [payment, setPayment] = useState<string>(draft?.paymentMethod || "cash");
+    47→  const [orderType, setOrderType] = useState<OrderType>(draft?.orderType || "now");
+    48→  const [bookingDate, setBookingDate] = useState("");
+    49→  const [bookingTime, setBookingTime] = useState("");
+    50→  const [selectedService, setSelectedService] = useState<ServiceId>(
+    51→    draft?.service || "MotorBro"
+    52→  );
+    53→  const [assigned, setAssigned] = useState<{
+    54→    name: string;
+    55→    plate: string;
+    56→    vehicle: string;
+    57→    vehicleType: string;
+    58→    rating: number;
+    59→    orderId?: string;
+    60→  } | null>(null);
+    61→
+    62→  const service = SERVICE_MAP[selectedService];
+    63→
+    64→  useEffect(() => {
+    65→    if (destination && destination.includes("—")) {
+    66→      const found = SAVED_PLACES.find((p) => destination.startsWith(p.name));
+    67→      if (found) setKm(found.km);
+    68→    }
+    69→  }, [destination]);
+    70→
+    71→  if (!draft) return null;
+    72→
+    73→  const effectiveKm = km || 1;
+    74→  const total = priceOf(selectedService, effectiveKm);
+    75→
+    76→  const canGoToService = destination.trim().length > 2;
+    77→  const canConfirm =
+    78→    destination.trim().length > 2 &&
+    79→    (orderType === "now" || (bookingDate && bookingTime));
+    80→
+    81→  const confirm = async () => {
+    82→    if (!user) return;
+    83→    setStage("confirming");
+    84→    try {
+    85→      if (orderType === "now") {
+    86→        const res = await fetch("/api/broo/orders", {
+    87→          method: "POST",
+    88→          headers: { "Content-Type": "application/json" },
+    89→          body: JSON.stringify({
+    90→            userId: user.id,
+    91→            service: selectedService,
+    92→            orderType: "now",
+    93→            pickup,
+    94→            destination,
+    95→            km: effectiveKm,
+    96→            paymentMethod: payment,
+    97→            note,
+    98→          }),
+    99→        });
+   100→        const data = await res.json();
+   101→        if (!res.ok || !data.ok) throw new Error(data.error || "Gagal membuat pesanan");
+   102→        const o = data.order;
+   103→        if (o.driverName) {
+   104→          setAssigned({
+   105→            name: o.driverName,
+   106→            plate: "B 4521 KXP",
+   107→            vehicle: o.vehicleType === "mobil" ? "Toyota Avanza" : "Honda Beat",
+   108→            vehicleType: o.vehicleType,
+   109→            rating: 4.9,
+   110→            orderId: o.id,
+   111→          });
+   112→          setStage("searching");
+   113→          setTimeout(() => setStage("assigned"), 2200);
+   114→        } else {
+   115→          setStage("searching");
+   116→          setTimeout(() => setStage("assigned"), 2600);
+   117→          setAssigned({
+   118→            name: "Driver Broo",
+   119→            plate: "—",
+   120→            vehicle: service.id === "MobilBro" ? "Mobil" : "Motor",
+   121→            vehicleType: service.id === "MobilBro" ? "mobil" : "motor",
+   122→            rating: 4.9,
+   123→            orderId: o.id,
+   124→          });
+   125→        }
+   126→      } else {
+   127→        const scheduledAt = new Date(`${bookingDate}T${bookingTime}:00`).toISOString();
+   128→        const res = await fetch("/api/broo/bookings", {
+   129→          method: "POST",
+   130→          headers: { "Content-Type": "application/json" },
+   131→          body: JSON.stringify({
+   132→            userId: user.id,
+   133→            service: selectedService,
+   134→            pickup,
+   135→            destination,
+   136→            km: effectiveKm,
+   137→            scheduledAt,
+   138→          }),
+   139→        });
+   140→        const data = await res.json();
+   141→        if (!res.ok || !data.ok) throw new Error(data.error || "Gagal membuat booking");
+   142→        toast.success("Booking berhasil! Lihat di tab Booking");
+   143→        bumpHistory();
+   144→        close_();
+   145→      }
+   146→    } catch (e) {
+   147→      toast.error((e as Error).message);
+   148→      setStage("confirm");
+   149→    }
+   150→  };
+   151→
+   152→  const finishOrder = () => {
+   153→    bumpHistory();
+   154→    toast.success("Perjalanan selesai! Beri rating ya");
+   155→    clearDraft();
+   156→    setStage("location");
+   157→    setAssigned(null);
+   158→  };
+   159→
+   160→  function close_() {
+   161→    clearDraft();
+   162→    setStage("location");
+   163→    setAssigned(null);
+   164→  }
+   165→
+   166→  // ride services shown in service picker (MakanBro handled separately)
+   167→  const rideServices = SERVICES;
+   168→
+   169→  return (
+   170→    <AnimatePresence>
+   171→      {draft && (
+   172→        <motion.div
+   173→          initial={{ opacity: 0 }}
+   174→          animate={{ opacity: 1 }}
+   175→          exit={{ opacity: 0 }}
+   176→          className="absolute inset-0 z-[80] flex flex-col justify-end bg-black/50 backdrop-blur-sm"
+   177→          onClick={(e) => {
+   178→            if (e.target === e.currentTarget && stage === "location") close_();
+   179→          }}
+   180→        >
+   181→          <motion.div
+   182→            initial={{ y: "100%" }}
+   183→            animate={{ y: 0 }}
+   184→            exit={{ y: "100%" }}
+   185→            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+   186→            onClick={(e) => e.stopPropagation()}
+   187→            className="max-h-[94%] overflow-y-auto broo-scrollbar rounded-t-[2rem] bg-background shadow-2xl"
+   188→          >
+   189→            <AnimatePresence mode="wait">
+   190→              {/* ============ STEP 1: LOCATION ============ */}
+   191→              {stage === "location" && (
+   192→                <motion.div
+   193→                  key="location"
+   194→                  initial={{ opacity: 0, x: -20 }}
+   195→                  animate={{ opacity: 1, x: 0 }}
+   196→                  exit={{ opacity: 0, x: -20 }}
+   197→                >
+   198→                  {/* header */}
+   199→                  <div className="relative bg-broo-header-gradient px-5 pb-5 pt-3 text-white">
+   200→                    <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/40" />
+   201→                    <div className="flex items-center gap-3">
+   202→                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur">
+   203→                        <BrooIcon name="MapPinned" className="h-6 w-6" />
+   204→                      </div>
+   205→                      <div className="flex-1">
+   206→                        <h3 className="text-lg font-black">Mau ke mana?</h3>
+   207→                        <p className="text-xs text-white/80">
+   208→                          {orderType === "now" ? "Pesan sekarang" : "Booking untuk nanti"}
+   209→                        </p>
+   210→                      </div>
+   211→                      <button
+   212→                        onClick={close_}
+   213→                        className="grid h-9 w-9 place-items-center rounded-full bg-white/20 tap-scale"
+   214→                        aria-label="Tutup"
+   215→                      >
+   216→                        <BrooIcon name="X" className="h-4 w-4" />
+   217→                      </button>
+   218→                    </div>
+   219→
+   220→                    {/* order type toggle (wave) */}
+   221→                    <div className="mt-4 grid grid-cols-2 gap-1 rounded-2xl bg-white/15 p-1 backdrop-blur">
+   222→                      {(["now", "booking"] as OrderType[]).map((t) => {
+   223→                        const active = orderType === t;
+   224→                        return (
+   225→                          <button
+   226→                            key={t}
+   227→                            onClick={() => setOrderType(t)}
+   228→                            className="relative overflow-hidden rounded-xl py-2 text-sm font-bold tap-scale"
+   229→                          >
+   230→                            {active && (
+   231→                              <motion.span
+   232→                                layoutId="loc-otype-wave"
+   233→                                className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl bg-white shadow"
+   234→                                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+   235→                              >
+   236→                                <span className="broo-wave-shimmer" />
+   237→                              </motion.span>
+   238→                            )}
+   239→                            <span className={`relative z-10 inline-flex items-center gap-1.5 ${active ? "text-primary" : "text-white"}`}>
+   240→                              <BrooIcon name={t === "now" ? "Zap" : "CalendarClock"} className="h-4 w-4" />
+   241→                              {t === "now" ? "Sekarang" : "Booking"}
+   242→                            </span>
+   243→                          </button>
+   244→                        );
+   245→                      })}
+   246→                    </div>
+   247→                  </div>
+   248→
+   249→                  <div className="space-y-4 p-5">
+   250→                    {/* locations */}
+   251→                    <div className="rounded-2xl border border-border bg-card p-3.5 shadow-broo">
+   252→                      <div className="flex gap-3">
+   253→                        <div className="flex flex-col items-center pt-2">
+   254→                          <span className="h-2.5 w-2.5 rounded-full border-2 border-primary" />
+   255→                          <span className="my-1 h-8 w-0.5 border-l border-dashed border-border" />
+   256→                          <BrooIcon name="MapPin" className="h-4 w-4 text-primary" />
+   257→                        </div>
+   258→                        <div className="flex-1 space-y-2">
+   259→                          <div>
+   260→                            <label className="text-[10px] font-semibold uppercase text-muted-foreground">
+   261→                              Lokasi Jemput
+   262→                            </label>
+   263→                            <input
+   264→                              value={pickup}
+   265→                              onChange={(e) => setPickup(e.target.value)}
+   266→                              className="w-full bg-transparent text-sm font-semibold text-foreground outline-none"
+   267→                              placeholder="Lokasi kamu sekarang"
+   268→                            />
+   269→                          </div>
+   270→                          <div className="h-px bg-border" />
+   271→                          <div>
+   272→                            <label className="text-[10px] font-semibold uppercase text-muted-foreground">
+   273→                              Tujuan
+   274→                            </label>
+   275→                            <input
+   276→                              value={destination}
+   277→                              onChange={(e) => setDestination(e.target.value)}
+   278→                              className="w-full bg-transparent text-sm font-semibold text-foreground outline-none"
+   279→                              placeholder="Mau ke mana?"
+   280→                              autoFocus
+   281→                            />
+   282→                          </div>
+   283→                        </div>
+   284→                        <button
+   285→                          onClick={() => { setPickup(destination); setDestination(pickup); }}
+   286→                          className="grid h-8 w-8 place-items-center self-center rounded-full bg-secondary text-foreground/70 tap-scale"
+   287→                          aria-label="Tukar lokasi"
+   288→                        >
+   289→                          <BrooIcon name="ChevronDown" className="h-4 w-4 rotate-180" />
+   290→                        </button>
+   291→                      </div>
+   292→                    </div>
+   293→
+   294→                    {/* booking schedule */}
+   295→                    {orderType === "booking" && (
+   296→                      <motion.div
+   297→                        initial={{ opacity: 0, height: 0 }}
+   298→                        animate={{ opacity: 1, height: "auto" }}
+   299→                        className="grid grid-cols-2 gap-2"
+   300→                      >
+   301→                        <div>
+   302→                          <label className="mb-1 block text-[11px] font-semibold text-foreground/70">Tanggal</label>
+   303→                          <input
+   304→                            type="date"
+   305→                            value={bookingDate}
+   306→                            onChange={(e) => setBookingDate(e.target.value)}
+   307→                            className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none"
+   308→                          />
+   309→                        </div>
+   310→                        <div>
+   311→                          <label className="mb-1 block text-[11px] font-semibold text-foreground/70">Jam</label>
+   312→                          <input
+   313→                            type="time"
+   314→                            value={bookingTime}
+   315→                            onChange={(e) => setBookingTime(e.target.value)}
+   316→                            className="w-full rounded-xl border border-border bg-card px-3 py-2.5 text-sm outline-none"
+   317→                          />
+   318→                        </div>
+   319→                      </motion.div>
+   320→                    )}
+   321→
+   322→                    {/* quick pick destinations */}
+   323→                    {!destination && (
+   324→                      <div className="space-y-1.5">
+   325→                        <p className="flex items-center gap-1.5 text-xs font-bold text-foreground/70">
+   326→                          <BrooIcon name="MapPin" className="h-3.5 w-3.5 text-primary" />
+   327→                          Pilih cepat
+   328→                        </p>
+   329→                        {SAVED_PLACES.slice(0, 4).map((p) => (
+   330→                          <button
+   331→                            key={p.name}
+   332→                            onClick={() => { setDestination(`${p.name} — ${p.address}`); setKm(p.km); }}
+   333→                            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left tap-scale"
+   334→                          >
+   335→                            <BrooIcon name="MapPin" className="h-4 w-4 text-primary" />
+   336→                            <div className="min-w-0 flex-1">
+   337→                              <p className="truncate text-sm font-semibold">{p.name}</p>
+   338→                              <p className="truncate text-[11px] text-muted-foreground">{p.address}</p>
+   339→                            </div>
+   340→                            <span className="text-[11px] font-bold text-foreground">{p.km} km</span>
+   341→                          </button>
+   342→                        ))}
+   343→                      </div>
+   344→                    )}
+   345→
+   346→                    <button
+   347→                      onClick={() => setStage("service")}
+   348→                      disabled={!canGoToService}
+   349→                      className="w-full rounded-2xl bg-broo-gradient py-4 text-sm font-bold text-white shadow-lg shadow-primary/30 disabled:opacity-50 tap-scale"
+   350→                    >
+   351→                      Lanjut Pilih Layanan
+   352→                      <BrooIcon name="ChevronRight" className="ml-1 inline h-4 w-4" />
+   353→                    </button>
+   354→                  </div>
+   355→                </motion.div>
+   356→              )}
+   357→
+   358→              {/* ============ STEP 2: SERVICE SELECTION (Grab-like) ============ */}
+   359→              {stage === "service" && (
+   360→                <motion.div
+   361→                  key="service"
+   362→                  initial={{ opacity: 0, x: 20 }}
+   363→                  animate={{ opacity: 1, x: 0 }}
+   364→                  exit={{ opacity: 0, x: 20 }}
+   365→                >
+   366→                  {/* header */}
+   367→                  <div className="relative bg-broo-header-gradient px-5 pb-4 pt-3 text-white">
+   368→                    <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/40" />
+   369→                    <div className="flex items-center gap-3">
+   370→                      <button
+   371→                        onClick={() => setStage("location")}
+   372→                        className="grid h-9 w-9 place-items-center rounded-full bg-white/20 tap-scale"
+   373→                        aria-label="Kembali"
+   374→                      >
+   375→                        <BrooIcon name="ChevronLeft" className="h-5 w-5" />
+   376→                      </button>
+   377→                      <div className="flex-1">
+   378→                        <h3 className="text-lg font-black">Pilih Layanan</h3>
+   379→                        <p className="text-xs text-white/80">{effectiveKm} km • {destination.split("—")[0]}</p>
+   380→                      </div>
+   381→                    </div>
+   382→                  </div>
+   383→
+   384→                  <div className="space-y-2 p-5">
+   385→                    {/* route summary compact */}
+   386→                    <div className="flex items-center gap-2 rounded-2xl bg-secondary/50 p-3 text-[11px]">
+   387→                      <BrooIcon name="CircleDot" className="h-3.5 w-3.5 shrink-0 text-primary" />
+   388→                      <span className="min-w-0 flex-1 truncate text-foreground/80">{pickup}</span>
+   389→                      <BrooIcon name="ArrowRight" className="h-3.5 w-3.5 text-muted-foreground" />
+   390→                      <BrooIcon name="MapPin" className="h-3.5 w-3.5 shrink-0 text-primary" />
+   391→                      <span className="min-w-0 flex-1 truncate text-foreground/80">{destination.split("—")[0]}</span>
+   392→                    </div>
+   393→
+   394→                    {/* service options — price comparison (Grab style) */}
+   395→                    <p className="pt-1 text-xs font-bold text-foreground/70">Pilih jenis layanan</p>
+   396→                    <div className="space-y-2">
+   397→                      {rideServices.map((s) => {
+   398→                        const active = selectedService === s.id;
+   399→                        const sPrice = priceOf(s.id, effectiveKm);
+   400→                        return (
+   401→                          <motion.button
+   402→                            key={s.id}
+   403→                            whileTap={{ scale: 0.98 }}
+   404→                            onClick={() => {
+   405→                              if (s.id === "MakanBro") {
+   406→                                close_();
+   407→                                openModal("merchant-list");
+   408→                                return;
+   409→                              }
+   410→                              setSelectedService(s.id);
+   411→                            }}
+   412→                            className={`relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border p-3 text-left tap-scale ${
+   413→                              active
+   414→                                ? "border-primary bg-primary/5 shadow-broo-primary"
+   415→                                : "border-border bg-card shadow-broo"
+   416→                            }`}
+   417→                          >
+   418→                            <ServiceIcon icon={s.icon} gradient={s.color} size={50} glow={active} serviceId={s.id} />
+   419→                            <div className="min-w-0 flex-1">
+   420→                              <div className="flex items-center gap-2">
+   421→                                <p className="text-sm font-black text-foreground">{s.name}</p>
+   422→                                {active && (
+   423→                                  <span className="grid h-4 w-4 place-items-center rounded-full bg-primary text-primary-foreground">
+   424→                                    <BrooIcon name="Check" className="h-2.5 w-2.5" strokeWidth={3} />
+   425→                                  </span>
+   426→                                )}
+   427→                              </div>
+   428→                              <p className="truncate text-[11px] text-muted-foreground">{s.tagline}</p>
+   429→                              <div className="mt-0.5 flex items-center gap-2 text-[10px] text-muted-foreground">
+   430→                                <span className="inline-flex items-center gap-0.5">
+   431→                                  <BrooIcon name="Clock" className="h-3 w-3" />
+   432→                                  {s.eta}
+   433→                                </span>
+   434→                                {s.id === "MakanBro" && (
+   435→                                  <span className="font-bold text-primary">Buka kedai →</span>
+   436→                                )}
+   437→                              </div>
+   438→                            </div>
+   439→                            <div className="text-right">
+   440→                              <p className="text-base font-black text-foreground">{formatIDR(sPrice)}</p>
+   441→                              <p className="text-[9px] text-emerald-600">0% komisi</p>
+   442→                            </div>
+   443→                          </motion.button>
+   444→                        );
+   445→                      })}
+   446→                    </div>
+   447→
+   448→                    <div className="flex gap-2 pt-2">
+   449→                      <button
+   450→                        onClick={() => setStage("location")}
+   451→                        className="rounded-2xl border border-border bg-card px-5 py-3.5 text-sm font-semibold text-foreground tap-scale"
+   452→                      >
+   453→                        <BrooIcon name="ChevronLeft" className="h-4 w-4" />
+   454→                      </button>
+   455→                      <button
+   456→                        onClick={() => setStage("confirm")}
+   457→                        disabled={selectedService === "MakanBro"}
+   458→                        className="flex-1 rounded-2xl bg-broo-gradient py-3.5 text-sm font-bold text-white shadow-lg shadow-primary/30 disabled:opacity-50 tap-scale"
+   459→                      >
+   460→                        Lanjut • {formatIDR(total)}
+   461→                      </button>
+   462→                    </div>
+   463→                  </div>
+   464→                </motion.div>
+   465→              )}
+   466→
+   467→              {/* ============ STEP 3: CONFIRM ============ */}
+   468→              {stage === "confirm" && (
+   469→                <motion.div
+   470→                  key="confirm"
+   471→                  initial={{ opacity: 0, x: 20 }}
+   472→                  animate={{ opacity: 1, x: 0 }}
+   473→                  exit={{ opacity: 0, x: 20 }}
+   474→                >
+   475→                  {/* service header */}
+   476→                  <div className={`relative bg-gradient-to-br ${service.color} px-5 pb-5 pt-3 text-white`}>
+   477→                    <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-white/40" />
+   478→                    <div className="flex items-center gap-3">
+   479→                      <button
+   480→                        onClick={() => setStage("service")}
+   481→                        className="grid h-9 w-9 place-items-center rounded-full bg-white/20 tap-scale"
+   482→                        aria-label="Kembali"
+   483→                      >
+   484→                        <BrooIcon name="ChevronLeft" className="h-5 w-5" />
+   485→                      </button>
+   486→                      <div className="grid h-11 w-11 place-items-center rounded-2xl bg-white/20 backdrop-blur">
+   487→                        <BrooIcon name={service.icon} className="h-6 w-6" />
+   488→                      </div>
+   489→                      <div className="flex-1">
+   490→                        <h3 className="text-lg font-black">{service.name}</h3>
+   491→                        <p className="text-xs text-white/85">{service.tagline}</p>
+   492→                      </div>
+   493→                      <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
+   494→                        {orderType === "now" ? "SEKARANG" : "BOOKING"}
+   495→                      </span>
+   496→                    </div>
+   497→                  </div>
+   498→
+   499→                  <div className="space-y-4 p-5">
+   500→                    {/* detail depending on service */}
+   501→                    {service.category === "food" && (
+   502→                      <InputLine label="Detail Makanan / Resto" placeholder="Contoh: 2x nasi goreng dari Warteg Bu Tini" value={note} onChange={setNote} icon="UtensilsCrossed" />
+   503→                    )}
+   504→                    {service.category === "errand" && (
+   505→                      <InputLine label="Detail Pesanan / Barang" placeholder="Contoh: Beli obat dari apotek K24" value={note} onChange={setNote} icon="ShoppingBag" />
+   506→                    )}
+   507→
+   508→                    {/* payment */}
+   509→                    <div>
+   510→                      <p className="mb-2 flex items-center gap-1.5 text-xs font-bold text-foreground/70">
+   511→                        <BrooIcon name="Wallet" className="h-3.5 w-3.5 text-primary" />
+   512→                        Metode Pembayaran
+   513→                      </p>
+   514→                      <div className="space-y-1.5">
+   515→                        {PAYMENT_METHODS.map((m) => (
+   516→                          <button
+   517→                            key={m.id}
+   518→                            onClick={() => setPayment(m.id)}
+   519→                            className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-left tap-scale ${
+   520→                              payment === m.id ? "border-primary bg-primary/5" : "border-border bg-card"
+   521→                            }`}
+   522→                          >
+   523→                            <div className={`grid h-9 w-9 place-items-center rounded-xl ${payment === m.id ? "bg-broo-gradient text-white" : "bg-secondary text-foreground/70"}`}>
+   524→                              <BrooIcon name={m.icon} className="h-5 w-5" />
+   525→                            </div>
+   526→                            <div className="flex-1">
+   527→                              <p className="text-sm font-bold text-foreground">{m.label}</p>
+   528→                              <p className="text-[11px] text-muted-foreground">{m.desc}</p>
+   529→                            </div>
+   530→                            <span className={`grid h-5 w-5 place-items-center rounded-full border ${payment === m.id ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
+   531→                              {payment === m.id && <BrooIcon name="Check" className="h-3 w-3" />}
+   532→                            </span>
+   533→                          </button>
+   534→                        ))}
+   535→                      </div>
+   536→                    </div>
+   537→
+   538→                    {/* price breakdown */}
+   539→                    <div className="rounded-2xl bg-secondary/60 p-3.5">
+   540→                      <div className="flex items-center justify-between">
+   541→                        <span className="text-xs text-muted-foreground">Estimasi jarak</span>
+   542→                        <span className="text-sm font-bold text-foreground">{effectiveKm} km</span>
+   543→                      </div>
+   544→                      <div className="mt-1.5 flex items-center justify-between">
+   545→                        <span className="text-xs text-muted-foreground">Tarif (tanpa potongan)</span>
+   546→                        <span className="text-lg font-black text-primary">{formatIDR(total)}</span>
+   547→                      </div>
+   548→                      <div className="mt-1 flex items-center justify-between">
+   549→                        <span className="text-xs text-muted-foreground">Komisi Broo</span>
+   550→                        <span className="text-sm font-bold text-emerald-600">Rp 0</span>
+   551→                      </div>
+   552→                    </div>
+   553→
+   554→                    <button
+   555→                      onClick={confirm}
+   556→                      disabled={!canConfirm}
+   557→                      className="w-full rounded-2xl bg-broo-gradient py-4 text-sm font-bold text-white shadow-lg shadow-primary/30 disabled:opacity-50 tap-scale"
+   558→                    >
+   559→                      {orderType === "now"
+   560→                        ? `Pesan ${service.name} • ${formatIDR(total)}`
+   561→                        : `Jadwalkan Booking • ${formatIDR(total)}`}
+   562→                    </button>
+   563→                  </div>
+   564→                </motion.div>
+   565→              )}
+   566→
+   567→              {/* ============ SEARCHING ============ */}
+   568→              {(stage === "confirming" || stage === "searching") && (
+   569→                <motion.div
+   570→                  key="searching"
+   571→                  initial={{ opacity: 0 }}
+   572→                  animate={{ opacity: 1 }}
+   573→                  exit={{ opacity: 0 }}
+   574→                  className="flex flex-col items-center justify-center px-8 py-20 text-center"
+   575→                >
+   576→                  <div className="relative grid h-24 w-24 place-items-center">
+   577→                    <span className="absolute inset-0 rounded-full bg-primary/15 broo-pulse-ring" />
+   578→                    <span className="absolute inset-3 rounded-full bg-primary/25 broo-pulse-ring" style={{ animationDelay: "0.6s" }} />
+   579→                    <div className={`grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br ${service.color} text-white`}>
+   580→                      <BrooIcon name={service.icon} className="h-8 w-8 broo-float" />
+   581→                    </div>
+   582→                  </div>
+   583→                  <h3 className="mt-6 text-lg font-black">
+   584→                    {stage === "confirming" ? "Memproses pesanan…" : "Mencari driver terdekat…"}
+   585→                  </h3>
+   586→                  <p className="mt-1 text-sm text-muted-foreground">
+   587→                    Broo menghubungkanmu dengan driver terbaik tanpa potongan biaya.
+   588→                  </p>
+   589→                </motion.div>
+   590→              )}
+   591→
+   592→              {/* ============ ASSIGNED / ARRIVED / DONE ============ */}
+   593→              {(stage === "assigned" || stage === "arrived" || stage === "done") && assigned && (
+   594→                <motion.div
+   595→                  key="assigned"
+   596→                  initial={{ opacity: 0 }}
+   597→                  animate={{ opacity: 1 }}
+   598→                  exit={{ opacity: 0 }}
+   599→                  className="p-5"
+   600→                >
+   601→                  {/* MAP */}
+   602→                  <div className="relative mb-4 h-44 w-full overflow-hidden rounded-3xl border border-border">
+   603→                    <BrooMap stage={stage} vehicleType={assigned.vehicleType as "motor" | "mobil"} className="h-full w-full" />
+   604→                    <div className="pointer-events-none absolute left-3 top-3 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur">
+   605→                      {stage === "assigned" ? "Driver menuju jemput" : stage === "arrived" ? "Driver tiba di lokasi" : "Selesai"}
+   606→                    </div>
+   607→                    <div className="pointer-events-none absolute bottom-3 right-3 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold text-emerald-600 shadow">
+   608→                      <BrooIcon name="Navigation" className="mr-1 inline h-3 w-3" />
+   609→                      {Math.max(1, Math.round(effectiveKm * 2))} mnt
+   610→                    </div>
+   611→                  </div>
+   612→
+   613→                  {/* status banner */}
+   614→                  <div className="mb-4 flex items-center gap-2 rounded-2xl bg-emerald-500/10 p-3 text-emerald-700 dark:text-emerald-300">
+   615→                    <BrooIcon name="CheckCircle2" className="h-5 w-5 shrink-0" />
+   616→                    <p className="text-sm font-bold">
+   617→                      {stage === "assigned" ? "Driver ditemukan! Sedang menuju lokasi jemput" : stage === "arrived" ? "Driver telah tiba di lokasi jemput" : "Perjalanan selesai"}
+   618→                    </p>
+   619→                  </div>
+   620→
+   621→                  {/* driver card */}
+   622→                  <div className="rounded-3xl border border-border bg-card p-4 shadow-broo">
+   623→                    <div className="flex items-center gap-3">
+   624→                      <div className="relative">
+   625→                        <div className="grid h-14 w-14 place-items-center rounded-full bg-broo-gradient text-lg font-black text-white">
+   626→                          {assigned.name[0]}
+   627→                        </div>
+   628→                        <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-emerald-500 text-white ring-2 ring-card">
+   629→                          <BrooIcon name="CheckCircle2" className="h-3.5 w-3.5" />
+   630→                        </span>
+   631→                      </div>
+   632→                      <div className="flex-1">
+   633→                        <p className="text-sm font-black text-foreground">{assigned.name}</p>
+   634→                        <p className="text-xs text-muted-foreground">
+   635→                          {assigned.vehicle} • {assigned.plate}
+   636→                        </p>
+   637→                        <div className="mt-0.5 flex items-center gap-1 text-xs font-bold text-foreground">
+   638→                          <BrooIcon name="Star" className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+   639→                          {assigned.rating.toFixed(1)}
+   640→                        </div>
+   641→                      </div>
+   642→                      <div className="flex gap-2">
+   643→                        <button
+   644→                          onClick={() => {
+   645→                            openChat({
+   646→                              conversationId: "",
+   647→                              driverName: assigned.name,
+   648→                              service: service.name,
+   649→                            });
+   650→                          }}
+   651→                          className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-primary tap-scale"
+   652→                          aria-label="Chat"
+   653→                        >
+   654→                          <BrooIcon name="MessageCircle" className="h-5 w-5" />
+   655→                        </button>
+   656→                        <button
+   657→                          onClick={() => toast.info("Menghubungkan panggilan…")}
+   658→                          className="grid h-11 w-11 place-items-center rounded-2xl bg-secondary text-emerald-600 tap-scale"
+   659→                          aria-label="Telepon"
+   660→                        >
+   661→                          <BrooIcon name="Phone" className="h-5 w-5" />
+   662→                        </button>
+   663→                      </div>
+   664→                    </div>
+   665→
+   666→                    {/* progress */}
+   667→                    <div className="mt-4">
+   668→                      <div className="mb-1.5 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
+   669→                        <span>Estimasi tiba: {service.eta}</span>
+   670→                        <span className="text-primary">{Math.max(1, Math.round(effectiveKm * 2))} menit</span>
+   671→                      </div>
+   672→                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+   673→                        <motion.div
+   674→                          initial={{ width: "0%" }}
+   675→                          animate={{ width: stage === "arrived" ? "100%" : stage === "assigned" ? "60%" : "30%" }}
+   676→                          transition={{ duration: 1.2 }}
+   677→                          className="h-full rounded-full bg-broo-gradient"
+   678→                        />
+   679→                      </div>
+   680→                    </div>
+   681→                  </div>
+   682→
+   683→                  {/* route summary */}
+   684→                  <div className="mt-3 rounded-2xl border border-border bg-card p-3.5">
+   685→                    <div className="flex gap-3">
+   686→                      <div className="flex flex-col items-center pt-1">
+   687→                        <span className="h-2.5 w-2.5 rounded-full border-2 border-primary" />
+   688→                        <span className="my-1 h-6 w-0.5 border-l border-dashed border-border" />
+   689→                        <BrooIcon name="MapPin" className="h-4 w-4 text-primary" />
+   690→                      </div>
+   691→                      <div className="flex-1 space-y-2 text-sm">
+   692→                        <p className="font-semibold text-foreground">{pickup}</p>
+   693→                        <p className="font-semibold text-foreground">{destination}</p>
+   694→                      </div>
+   695→                    </div>
+   696→                    <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+   697→                      <span className="text-xs text-muted-foreground">Total bayar ({payment === "cash" ? "Tunai" : "QRIS"})</span>
+   698→                      <span className="text-lg font-black text-primary">{formatIDR(total)}</span>
+   699→                    </div>
+   700→                  </div>
+   701→
+   702→                  {stage === "assigned" ? (
+   703→                    <div className="mt-3 grid grid-cols-2 gap-2">
+   704→                      <button
+   705→                        onClick={() => setStage("arrived")}
+   706→                        className="rounded-2xl border border-border bg-card py-3 text-sm font-semibold text-foreground tap-scale"
+   707→                      >
+   708→                        Simulasi: Driver Tiba
+   709→                      </button>
+   710→                      <button
+   711→                        onClick={() => { toast.success("Pesanan dibatalkan"); close_(); }}
+   712→                        className="rounded-2xl border border-destructive/30 bg-destructive/5 py-3 text-sm font-semibold text-destructive tap-scale"
+   713→                      >
+   714→                        Batalkan
+   715→                      </button>
+   716→                    </div>
+   717→                  ) : (
+   718→                    <button
+   719→                      onClick={finishOrder}
+   720→                      className="mt-3 w-full rounded-2xl bg-broo-gradient py-4 text-sm font-bold text-white shadow-lg shadow-primary/30 tap-scale"
+   721→                    >
+   722→                      Selesaikan & Beri Rating
+   723→                    </button>
+   724→                  )}
+   725→                </motion.div>
+   726→              )}
+   727→            </AnimatePresence>
+   728→          </motion.div>
+   729→        </motion.div>
+   730→      )}
+   731→    </AnimatePresence>
+   732→  );
+   733→
+   734→  function InputLine({
+   735→    label,
+   736→    placeholder,
+   737→    value,
+   738→    onChange,
+   739→    icon,
+   740→  }: {
+   741→    label: string;
+   742→    placeholder: string;
+   743→    value: string;
+   744→    onChange: (v: string) => void;
+   745→    icon: string;
+   746→  }) {
+   747→    return (
+   748→      <div className="rounded-2xl border border-border bg-card p-3.5">
+   749→        <label className="mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-foreground/70">
+   750→          <BrooIcon name={icon} className="h-3.5 w-3.5 text-primary" />
+   751→          {label}
+   752→        </label>
+   753→        <input
+   754→          value={value}
+   755→          onChange={(e) => onChange(e.target.value)}
+   756→          placeholder={placeholder}
+   757→          className="w-full bg-transparent text-sm font-medium text-foreground outline-none"
+   758→        />
+   759→      </div>
+   760→    );
+   761→  }
+   762→}
+   763→

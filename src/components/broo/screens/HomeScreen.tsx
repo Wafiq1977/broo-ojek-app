@@ -121,32 +121,20 @@ export default function HomeScreen() {
 
       {/* services — standalone colored icons (Grab style, no background box) */}
       <section className="px-5 pt-4">
-        <div className="grid grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-5 gap-2">
           {SERVICES.map((s) => (
             <motion.button
               key={s.id}
-              whileTap={{ scale: 0.88 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => pickService(s.id)}
               className="flex flex-col items-center gap-1.5"
             >
-              <ServiceIcon icon={s.icon} gradient={s.color} size={56} serviceId={s.id} />
-              <span className="text-[11px] font-bold leading-tight text-foreground">
+              <ServiceIcon icon={s.icon} gradient={s.color} size={52} serviceId={s.id} />
+              <span className="text-[10px] font-bold leading-tight text-foreground text-center">
                 {s.name}
               </span>
             </motion.button>
           ))}
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            onClick={() => openModal("driver-info")}
-            className="flex flex-col items-center gap-1.5"
-          >
-            <div className="relative grid h-14 w-14 place-items-center">
-              <BrooIcon name="UserPlus" className="h-9 w-9 text-primary" strokeWidth={2} fill="currentColor" fillOpacity={0.15} />
-            </div>
-            <span className="text-[11px] font-bold leading-tight text-primary">
-              Jadi Driver
-            </span>
-          </motion.button>
         </div>
       </section>
 
@@ -286,37 +274,7 @@ export default function HomeScreen() {
         </div>
       </section>
 
-      {/* driver recruit banner */}
-      <section className="px-5 pt-5 pb-8">
-        <button
-          onClick={() => openModal("driver-info")}
-          className="relative block w-full overflow-hidden rounded-3xl bg-broo-dark-gradient p-4 text-left text-white shadow-broo-lg tap-scale"
-        >
-          <Image
-            src="/promo/promo-driver.png"
-            alt="Jadi Driver"
-            fill
-            className="absolute inset-0 h-full w-full object-cover opacity-30"
-          />
-          <div className="relative">
-            <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-[10px] font-bold text-emerald-950">
-              PENGHASILAN
-            </span>
-            <h3 className="mt-2 text-lg font-black leading-tight">
-              Punya Kendaraan?
-              <br />
-              Berpenghasilan Bersama Broo
-            </h3>
-            <p className="mt-1 text-xs text-white/75">
-              Bayar admin sekali daftar, 100% tarif untukmu selamanya.
-            </p>
-            <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-white px-4 py-2 text-xs font-bold text-foreground">
-              Cara Daftar
-              <BrooIcon name="ChevronRight" className="h-4 w-4" />
-            </span>
-          </div>
-        </button>
-      </section>
+      {/* driver recruit banner — moved to onboarding/daftar driver only */}
 
       {/* floating cart bar (if cart has items) */}
       <AnimatePresence>

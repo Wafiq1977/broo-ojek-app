@@ -490,7 +490,7 @@ export default function Onboarding() {
         )}
 
         {view === "admin" && (
-          <AdminLoginView onBack={() => setView("welcome")} onSuccess={() => { setPhase("app"); useBroo.getState().setTab("admin"); }} />
+          <AdminLoginView onBack={() => setView("welcome")} onSuccess={() => { useBroo.getState().setTab("admin"); setPhase("app"); }} />
         )}
       </AnimatePresence>
 

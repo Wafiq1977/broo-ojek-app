@@ -40,7 +40,7 @@ export function ServiceIcon({
     return (
       <div
         className={`relative ${glow ? "drop-shadow-[0_4px_12px_rgba(249,115,22,0.25)]" : "drop-shadow-sm"} ${className}`}
-        style={{ width: size, height: size }}
+        style={{ width: size, height: size, imageRendering: "crisp-edges" }}
       >
         <Image
           src={SERVICE_ICON_IMG[serviceId]}
@@ -48,6 +48,7 @@ export function ServiceIcon({
           fill
           className="object-contain"
           sizes={`${size}px`}
+          unoptimized
           priority
         />
       </div>

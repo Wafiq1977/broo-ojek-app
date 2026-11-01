@@ -23,6 +23,7 @@ export default function AppShell() {
   const chatOpen = useBroo((s) => s.chatOpen);
   const homePromoSeen = useBroo((s) => s.homePromoSeen);
 
+  // Promo shows on home when not yet seen this session (session-based, resets each app open)
   const showPromo = !homePromoSeen;
 
   return (
