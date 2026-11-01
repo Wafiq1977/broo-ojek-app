@@ -12,8 +12,9 @@ interface ServiceIconProps {
 }
 
 /**
- * Professional service icon: Lucide icon on a gradient tile with gloss + inner ring.
- * Replaces childish emoji with smooth, realistic, professional iconography.
+ * Professional service icon: Lucide icon rendered as a BOLD FILLED icon
+ * (white fill + stroke) on a rich gradient tile with gloss + inner ring + depth.
+ * Looks like a modern app icon (Grab/Gojek style) — realistic, bold, professional.
  */
 export function ServiceIcon({
   icon,
@@ -28,14 +29,17 @@ export function ServiceIcon({
       style={{ width: size, height: size }}
     >
       {/* gloss highlight (top half) */}
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/45 to-transparent" />
       {/* inner ring */}
-      <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/25" />
+      <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/30" />
+      {/* bottom shadow for depth */}
+      <span className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/15 to-transparent" />
       <BrooIcon
         name={icon}
-        className="relative text-white drop-shadow-sm"
-        style={{ width: size * 0.45, height: size * 0.45 }}
-        strokeWidth={2}
+        className="relative text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+        style={{ width: size * 0.5, height: size * 0.5 }}
+        strokeWidth={2.2}
+        fill="rgba(255,255,255,0.95)"
       />
     </div>
   );
@@ -55,8 +59,13 @@ export function ServiceIconMini({
     <div
       className={`relative grid h-9 w-9 place-items-center overflow-hidden rounded-xl bg-gradient-to-br ${gradient} text-white shadow-broo ${className}`}
     >
-      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/35 to-transparent" />
-      <BrooIcon name={icon} className="relative h-[18px] w-[18px]" strokeWidth={2.1} />
+      <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
+      <BrooIcon
+        name={icon}
+        className="relative h-[18px] w-[18px] drop-shadow-sm"
+        strokeWidth={2.3}
+        fill="rgba(255,255,255,0.92)"
+      />
     </div>
   );
 }
