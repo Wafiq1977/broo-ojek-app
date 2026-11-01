@@ -150,13 +150,33 @@
 
   /* gradient brand bg */
   .bg-broo-gradient {
-    background-image: linear-gradient(135deg, oklch(0.72 0.19 45) 0%, oklch(0.62 0.20 35) 100%);
+    background-image: linear-gradient(135deg, oklch(0.75 0.19 42) 0%, oklch(0.62 0.21 32) 100%);
+  }
+  .bg-broo-gradient-vivid {
+    background-image: linear-gradient(135deg, oklch(0.78 0.18 50) 0%, oklch(0.66 0.22 38) 50%, oklch(0.58 0.20 30) 100%);
   }
   .bg-broo-soft {
-    background-image: linear-gradient(180deg, oklch(0.96 0.04 70) 0%, oklch(0.99 0.005 60) 60%);
+    background-image:
+      radial-gradient(120% 60% at 50% 0%, oklch(0.96 0.06 70 / 0.9) 0%, transparent 55%),
+      linear-gradient(180deg, oklch(0.975 0.012 60) 0%, oklch(0.99 0.004 60) 100%);
+  }
+  .bg-broo-soft-warm {
+    background-image:
+      radial-gradient(100% 50% at 100% 0%, oklch(0.94 0.05 75 / 0.7) 0%, transparent 50%),
+      radial-gradient(100% 50% at 0% 0%, oklch(0.95 0.04 60 / 0.6) 0%, transparent 50%),
+      linear-gradient(180deg, oklch(0.975 0.012 60) 0%, oklch(0.99 0.004 60) 100%);
   }
   .bg-broo-dark-gradient {
-    background-image: linear-gradient(150deg, oklch(0.30 0.04 50) 0%, oklch(0.22 0.03 50) 100%);
+    background-image: linear-gradient(150deg, oklch(0.34 0.06 50) 0%, oklch(0.24 0.04 45) 100%);
+  }
+  .bg-broo-card-gradient {
+    background-image: linear-gradient(180deg, oklch(1 0 0) 0%, oklch(0.99 0.008 60) 100%);
+  }
+  .bg-broo-header-gradient {
+    background-image:
+      radial-gradient(120% 80% at 80% 0%, oklch(0.82 0.16 60 / 0.5) 0%, transparent 55%),
+      radial-gradient(120% 80% at 0% 0%, oklch(0.78 0.18 50 / 0.55) 0%, transparent 55%),
+      linear-gradient(160deg, oklch(0.70 0.19 45) 0%, oklch(0.58 0.20 35) 100%);
   }
   .tap-scale {
     transition: transform 120ms cubic-bezier(0.4,0,0.2,1);
@@ -165,6 +185,29 @@
 
   .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .safe-top { padding-top: env(safe-area-inset-top, 0px); }
+
+  /* premium card shadow */
+  .shadow-broo {
+    box-shadow: 0 1px 2px oklch(0.5 0.05 50 / 0.06), 0 8px 24px oklch(0.5 0.08 50 / 0.08);
+  }
+  .shadow-broo-lg {
+    box-shadow: 0 2px 8px oklch(0.5 0.08 50 / 0.08), 0 16px 40px oklch(0.5 0.1 50 / 0.12);
+  }
+  .shadow-broo-primary {
+    box-shadow: 0 8px 20px oklch(0.65 0.19 45 / 0.28);
+  }
+
+  /* glass effect */
+  .glass {
+    background: oklch(1 0 0 / 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .glass-dark {
+    background: oklch(0.2 0.02 50 / 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
 }
 
 /* phone shell animation */

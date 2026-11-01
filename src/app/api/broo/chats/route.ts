@@ -77,15 +77,32 @@ export async function POST(req: NextRequest) {
       const now = new Date().toISOString();
       messages.push({ id: crypto.randomUUID(), from: "user", text, at: now });
 
-      // auto driver reply
-      const replies = [
-        "Baik, siap diterima. Driver menuju lokasi.",
-        "Oke kak, ditunggu ya.",
-        "Sudah dekat lokasi penjemputan, mohon tunggu sebentar.",
-        "Terima kasih kak, semoga pelayanan saya memuaskan!",
-        "Bisa kak, silakan diteruskan instruksinya.",
-      ];
-      const reply = replies[Math.floor(Math.random() * replies.length)];
+      // context-aware driver reply
+      const lower = (text || "").toLowerCase();
+      let reply: string;
+      if (/(halo|hai|hi|pagi|siang|sore|malam)/.test(lower)) {
+        reply = "Halo kak! 👋 Saya driver Broo, ada yang bisa saya bantu?";
+      } else if (/(di mana|dimana|lokasi|alamat|jemput)/.test(lower)) {
+        reply = "Saya sudah di lokasi penjemputan, mohon tunggu sebentar ya kak 🙏";
+      } else if (/(berapa|berapa lama|lama|eta|sampai)/.test(lower)) {
+        reply = "Estimasi tiba 3-5 menit lagi kak, sudah dekat kok ⏱️";
+      } else if (/(makasih|terima kasih|thanks|thx)/.test(lower)) {
+        reply = "Sama-sama kak! 😊 Terima kasih sudah pakai Broo. Jangan lupa beri rating ya ⭐";
+      } else if (/(batal|cancel|gagal)/.test(lower)) {
+        reply = "Baik kak, saya bantu proses. Mohon tunggu sebentar.";
+      } else if (/(cod|tunai|bayar|uang)/.test(lower)) {
+        reply = "Bisa bayar tunai langsung ke saya kak, atau via QRIS 😊";
+      } else if (/(aman|selamat|hati-hati|hati hati)/.test(lower)) {
+        reply = "Tentu kak, saya selalu berkendara dengan aman dan patuh rambu 🛡️";
+      } else {
+        const fallback = [
+          "Baik kak, siap diterima. Driver menuju lokasi 🛵",
+          "Oke kak, ditunggu ya 🙏",
+          "Bisa kak, silakan diteruskan instruksinya 👍",
+          "Noted kak, saya proses sekarang.",
+        ];
+        reply = fallback[Math.floor(Math.random() * fallback.length)];
+      }
       messages.push({
         id: crypto.randomUUID(),
         from: "driver",

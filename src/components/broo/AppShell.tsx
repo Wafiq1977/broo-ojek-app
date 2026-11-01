@@ -7,11 +7,11 @@ import HomeScreen from "./screens/HomeScreen";
 import BookingScreen from "./screens/BookingScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 import ChatScreen from "./screens/ChatScreen";
-import FoodScreen from "./screens/FoodScreen";
 import AdminScreen from "./screens/AdminScreen";
 import DriverRegisterInfo from "./DriverRegisterInfo";
 import OrderFlow from "./OrderFlow";
 import MerchantDetail from "./MerchantDetail";
+import MerchantListOverlay from "./MerchantListOverlay";
 import ChatDetailOverlay from "./ChatDetailOverlay";
 import PromoPopup from "./PromoPopup";
 import { ProfileSheet, NotificationsSheet, ApplySuccessModal } from "./Overlays";
@@ -38,7 +38,6 @@ export default function AppShell() {
             className="absolute inset-0"
           >
             {activeTab === "home" && <HomeScreen />}
-            {activeTab === "food" && <FoodScreen />}
             {activeTab === "booking" && <BookingScreen />}
             {activeTab === "history" && <HistoryScreen />}
             {activeTab === "chat" && <ChatScreen />}
@@ -52,6 +51,7 @@ export default function AppShell() {
           {modal === "notifications" && <NotificationsSheet key="notif" />}
           {modal === "driver-info" && <DriverRegisterInfo key="driver" />}
           {modal === "driver-apply-success" && <ApplySuccessModal key="ok" />}
+          {modal === "merchant-list" && <MerchantListOverlay key="mlist" />}
           {modal === "merchant-detail" && <MerchantDetail key="merchant" />}
         </AnimatePresence>
 

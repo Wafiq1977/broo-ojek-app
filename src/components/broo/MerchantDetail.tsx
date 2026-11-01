@@ -95,7 +95,7 @@ export default function MerchantDetail() {
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
       transition={{ type: "spring", stiffness: 320, damping: 32 }}
-      className="absolute inset-0 z-[75] flex h-full w-full flex-col bg-background"
+      className="absolute inset-0 z-[75] flex h-full w-full flex-col bg-broo-soft-warm"
     >
       {/* scrollable content */}
       <div className="flex-1 overflow-y-auto broo-scrollbar">

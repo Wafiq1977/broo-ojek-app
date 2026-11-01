@@ -5,21 +5,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useBroo } from "@/lib/store";
 import { BrooIcon } from "../BrooIcon";
-import { SERVICES, SAVED_PLACES, formatIDR, priceOf, type OrderType, type ServiceId } from "@/lib/broo-data";
+import {
+  SERVICES,
+  SAVED_PLACES,
+  MERCHANTS,
+  formatIDR,
+  priceOf,
+  type OrderType,
+  type ServiceId,
+} from "@/lib/broo-data";
 import { toast } from "sonner";
 
 export default function HomeScreen() {
   const user = useBroo((s) => s.user);
   const openModal = useBroo((s) => s.openModal);
   const startDraft = useBroo((s) => s.startDraft);
-  const setTab = useBroo((s) => s.setTab);
+  const openMerchant = useBroo((s) => s.openMerchant);
+  const cart = useBroo((s) => s.cart);
 
   const [orderType, setOrderType] = useState<OrderType>("now");
 
   const pickService = (id: ServiceId) => {
-    // MakanBro goes to the Food (kedai) tab, like GoFood
     if (id === "MakanBro") {
-      setTab("food");
+      openModal("merchant-list");
       return;
     }
     startDraft({
@@ -33,15 +41,12 @@ export default function HomeScreen() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft">
+    <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft-warm">
       {/* header */}
-      <header className="sticky top-0 z-20 bg-broo-gradient px-5 pb-5 pt-5 text-white safe-top">
+      <header className="sticky top-0 z-20 bg-broo-header-gradient px-5 pb-5 pt-5 text-white safe-top">
         <div className="flex items-center justify-between">
-          <button
-            onClick={() => openModal("profile")}
-            className="flex items-center gap-2.5 tap-scale"
-          >
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 text-sm font-black backdrop-blur">
+          <button onClick={() => openModal("profile")} className="flex items-center gap-2.5 tap-scale">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-white/25 text-sm font-black backdrop-blur ring-1 ring-white/30">
               {(user?.name || "B")[0].toUpperCase()}
             </div>
             <div className="text-left">
@@ -54,14 +59,14 @@ export default function HomeScreen() {
           <button
             onClick={() => openModal("notifications")}
             aria-label="Notifikasi"
-            className="relative grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur tap-scale"
+            className="relative grid h-10 w-10 place-items-center rounded-full bg-white/25 backdrop-blur ring-1 ring-white/30 tap-scale"
           >
             <BrooIcon name="Bell" className="h-5 w-5" />
             <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-emerald-300 ring-2 ring-primary" />
           </button>
         </div>
 
-        {/* search */}
+        {/* location + search */}
         <button
           onClick={() => toast.info("Cari tujuanmu saat memesan layanan ya 🙂")}
           className="mt-4 flex w-full items-center gap-2.5 rounded-2xl bg-white px-4 py-3 text-left text-sm text-muted-foreground shadow-lg shadow-black/10 tap-scale"
@@ -73,7 +78,7 @@ export default function HomeScreen() {
 
       {/* now / booking toggle */}
       <div className="px-5 pt-4">
-        <div className="relative grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1">
+        <div className="relative grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1 shadow-broo">
           {(["now", "booking"] as OrderType[]).map((t) => (
             <button
               key={t}
@@ -83,7 +88,7 @@ export default function HomeScreen() {
               {orderType === t && (
                 <motion.span
                   layoutId="order-type-pill"
-                  className="absolute inset-0 rounded-xl bg-broo-gradient shadow-md shadow-primary/30"
+                  className="absolute inset-0 rounded-xl bg-broo-gradient shadow-broo-primary"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
@@ -92,7 +97,7 @@ export default function HomeScreen() {
                   orderType === t ? "text-white" : "text-muted-foreground"
                 }`}
               >
-                <BrooIcon name={t === "now" ? "Zap" : "CalendarClock"} className="h-4 w-4" />
+                <span>{t === "now" ? "⚡" : "📅"}</span>
                 {t === "now" ? "Pesan Sekarang" : "Booking"}
               </span>
             </button>
@@ -105,57 +110,125 @@ export default function HomeScreen() {
         </p>
       </div>
 
-      {/* services */}
+      {/* services — realistic emoji icons on premium gradient tiles */}
       <section className="px-5 pt-4">
         <div className="grid grid-cols-4 gap-2.5">
           {SERVICES.map((s) => (
             <motion.button
               key={s.id}
-              whileTap={{ scale: 0.93 }}
+              whileTap={{ scale: 0.92 }}
               onClick={() => pickService(s.id)}
               className="flex flex-col items-center gap-1.5"
             >
               <div
-                className={`relative grid h-[60px] w-[60px] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${s.color} text-white shadow-lg shadow-black/10`}
+                className={`relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${s.color} shadow-broo`}
               >
                 {/* gloss highlight */}
-                <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/35 to-transparent" />
-                <BrooIcon name={s.icon} className="relative h-7 w-7" strokeWidth={2.1} />
+                <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
+                {/* inner ring */}
+                <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/25" />
+                <span className="relative text-3xl leading-none drop-shadow-sm">
+                  {s.emoji}
+                </span>
               </div>
               <span className="text-[11px] font-bold leading-tight text-foreground">
                 {s.name}
               </span>
             </motion.button>
           ))}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.92 }}
             onClick={() => openModal("driver-info")}
             className="flex flex-col items-center gap-1.5"
           >
-            <div className="grid h-[60px] w-[60px] place-items-center rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 text-primary">
-              <BrooIcon name="UserPlus" className="h-7 w-7" />
+            <div className="relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10">
+              <span className="text-3xl leading-none">🙋‍♂️</span>
             </div>
             <span className="text-[11px] font-bold leading-tight text-primary">
               Jadi Driver
             </span>
-          </button>
+          </motion.button>
         </div>
       </section>
 
       {/* promo carousel */}
       <section className="pt-5">
-        <PromoCarousel onPick={(cta) => {
-          if (cta.includes("Driver")) openModal("driver-info");
-          else if (cta.includes("Makanan")) pickService("MakanBro");
-          else if (cta.includes("Belanja")) pickService("TitipBro");
-          else pickService("MotorBro");
-        }} />
+        <PromoCarousel
+          onPick={(cta) => {
+            if (cta.includes("Driver")) openModal("driver-info");
+            else if (cta.includes("Makanan")) openModal("merchant-list");
+            else if (cta.includes("Belanja")) pickService("TitipBro");
+            else pickService("MotorBro");
+          }}
+        />
+      </section>
+
+      {/* UMKM kedai — Kedai Favorit horizontal scroll (GoFood style on home) */}
+      <section className="pt-5">
+        <div className="mb-2.5 flex items-center justify-between px-5">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🍴</span>
+            <h3 className="text-base font-black text-foreground">Kedai Favorit</h3>
+            <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary">
+              UMKM
+            </span>
+          </div>
+          <button
+            onClick={() => openModal("merchant-list")}
+            className="text-xs font-semibold text-primary"
+          >
+            Lihat semua
+          </button>
+        </div>
+        <div className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1">
+          {MERCHANTS.slice(0, 5).map((m) => (
+            <motion.button
+              key={m.id}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => openMerchant(m)}
+              className="w-[150px] shrink-0 overflow-hidden rounded-2xl border border-border bg-broo-card-gradient text-left shadow-broo tap-scale"
+            >
+              <div className="relative h-20 w-full overflow-hidden">
+                <Image src={m.cover} alt={m.name} fill className="object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
+                {m.promo && (
+                  <span className="absolute left-1.5 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold text-white shadow">
+                    {m.promo}
+                  </span>
+                )}
+                <div className="absolute -bottom-3 left-2">
+                  <div className={`grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br ${m.logoColor} text-xs font-black text-white shadow ring-2 ring-card`}>
+                    {m.name[0]}
+                  </div>
+                </div>
+              </div>
+              <div className="px-2 pt-5 pb-2">
+                <p className="truncate text-xs font-black text-foreground">{m.name}</p>
+                <div className="mt-1 flex items-center gap-2 text-[9px] text-muted-foreground">
+                  <span className="inline-flex items-center gap-0.5 font-bold text-foreground">
+                    <BrooIcon name="Star" className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                    {m.rating.toFixed(1)}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5">
+                    <BrooIcon name="Clock" className="h-2.5 w-2.5" />
+                    {m.eta}
+                  </span>
+                  <span className="inline-flex items-center gap-0.5">
+                    <BrooIcon name="Navigation" className="h-2.5 w-2.5" />
+                    {m.distanceKm}km
+                  </span>
+                </div>
+              </div>
+            </motion.button>
+          ))}
+        </div>
       </section>
 
       {/* value banner */}
       <section className="px-5 pt-4">
-        <div className="flex items-center gap-3 rounded-2xl bg-emerald-500/10 p-3.5">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white">
-            <BrooIcon name="Percent" className="h-5 w-5" />
+        <div className="flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/15 to-teal-500/10 p-3.5">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-lg text-white shadow-broo">
+            💯
           </div>
           <div className="flex-1">
             <p className="text-sm font-black text-foreground">0% Komisi Driver</p>
@@ -169,13 +242,17 @@ export default function HomeScreen() {
       {/* popular destinations */}
       <section className="px-5 pt-5">
         <div className="mb-2.5 flex items-center justify-between">
-          <h3 className="text-base font-black text-foreground">Tujuan Populer</h3>
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📍</span>
+            <h3 className="text-base font-black text-foreground">Tujuan Populer</h3>
+          </div>
           <button className="text-xs font-semibold text-primary">Lihat semua</button>
         </div>
         <div className="space-y-2">
-          {SAVED_PLACES.slice(0, 4).map((p) => (
-            <button
+          {SAVED_PLACES.slice(0, 4).map((p, i) => (
+            <motion.button
               key={p.name}
+              whileTap={{ scale: 0.98 }}
               onClick={() => {
                 startDraft({
                   service: "MotorBro",
@@ -186,10 +263,10 @@ export default function HomeScreen() {
                   paymentMethod: "cash",
                 });
               }}
-              className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3 text-left tap-scale"
+              className="flex w-full items-center gap-3 rounded-2xl border border-border bg-broo-card-gradient p-3 text-left shadow-broo tap-scale"
             >
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <BrooIcon name="MapPin" className="h-5 w-5" />
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-lg">
+                {["✈️", "🚉", "🏛️", "🏖️"][i] || "📍"}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-foreground">{p.name}</p>
@@ -197,11 +274,11 @@ export default function HomeScreen() {
               </div>
               <div className="text-right">
                 <p className="text-[11px] text-muted-foreground">{p.km} km</p>
-                <p className="text-sm font-black text-foreground">
+                <p className="text-sm font-black text-primary">
                   {formatIDR(priceOf("MotorBro", p.km))}
                 </p>
               </div>
-            </button>
+            </motion.button>
           ))}
         </div>
       </section>
@@ -210,13 +287,13 @@ export default function HomeScreen() {
       <section className="px-5 pt-5 pb-8">
         <button
           onClick={() => openModal("driver-info")}
-          className="relative block w-full overflow-hidden rounded-3xl bg-broo-dark-gradient p-4 text-left text-white tap-scale"
+          className="relative block w-full overflow-hidden rounded-3xl bg-broo-dark-gradient p-4 text-left text-white shadow-broo-lg tap-scale"
         >
           <Image
             src="/promo/promo-driver.png"
             alt="Jadi Driver"
             fill
-            className="absolute inset-0 h-full w-full object-cover opacity-25"
+            className="absolute inset-0 h-full w-full object-cover opacity-30"
           />
           <div className="relative">
             <span className="rounded-full bg-emerald-400 px-2.5 py-0.5 text-[10px] font-bold text-emerald-950">
@@ -237,6 +314,35 @@ export default function HomeScreen() {
           </div>
         </button>
       </section>
+
+      {/* floating cart bar (if cart has items) */}
+      <AnimatePresence>
+        {cart.length > 0 && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            className="sticky bottom-0 z-20 px-4 pb-3"
+          >
+            <button
+              onClick={() => openModal("merchant-list")}
+              className="flex w-full items-center gap-3 rounded-2xl bg-broo-gradient p-3 text-white shadow-broo-primary tap-scale"
+            >
+              <div className="relative grid h-10 w-10 place-items-center rounded-xl bg-white/20">
+                <BrooIcon name="ShoppingBag" className="h-5 w-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-[11px] text-white/80">Keranjang MakanBro</p>
+                <p className="text-sm font-black">
+                  {formatIDR(cart.reduce((a, c) => a + c.qty * c.item.price, 0))}
+                </p>
+              </div>
+              <span className="text-xs font-bold">Lihat</span>
+              <BrooIcon name="ChevronRight" className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -244,14 +350,14 @@ export default function HomeScreen() {
 function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
   const [i, setI] = useState(0);
   const promos = [
-    { image: "/promo/promo-1.png", title: "Tanpa Biaya Admin Selamanya", sub: "Harga lebih murah untukmu", cta: "Pesan Sekarang" },
-    { image: "/promo/promo-2.png", title: "MakanBro — Antar Makanan", sub: "Tanpa markup harga resto", cta: "Pesan Makanan" },
-    { image: "/promo/promo-3.png", title: "TitipBro — Jasa Titip Belanja", sub: "Antar dari toko mana saja", cta: "Titip Belanja" },
-    { image: "/promo/promo-driver.png", title: "Jadi Driver, 100% Tarifmu", sub: "Daftar sekali, untung selamanya", cta: "Lihat Cara Daftar" },
+    { image: "/promo/promo-1.png", title: "Tanpa Biaya Admin Selamanya", sub: "Harga lebih murah untukmu", cta: "Pesan Sekarang", emoji: "🔥" },
+    { image: "/promo/promo-2.png", title: "MakanBro — Antar Makanan", sub: "Tanpa markup harga resto", cta: "Pesan Makanan", emoji: "🍜" },
+    { image: "/promo/promo-3.png", title: "TitipBro — Jasa Titip Belanja", sub: "Antar dari toko mana saja", cta: "Titip Belanja", emoji: "🛍️" },
+    { image: "/promo/promo-driver.png", title: "Jadi Driver, 100% Tarifmu", sub: "Daftar sekali, untung selamanya", cta: "Lihat Cara Daftar", emoji: "🛵" },
   ];
   return (
     <div className="px-5">
-      <div className="relative overflow-hidden rounded-3xl">
+      <div className="relative overflow-hidden rounded-3xl shadow-broo-lg">
         <AnimatePresence initial={false} mode="popLayout">
           <motion.div
             key={i}
@@ -261,11 +367,11 @@ function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
             transition={{ duration: 0.35 }}
             className="relative h-36 w-full overflow-hidden"
           >
-            <Image src={promos[i].image} alt={promos[i].title} fill className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+            <Image src={promos[i].image} alt={promos[i].title} fill className="object-cover" priority />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-center p-4">
-              <p className="text-[11px] font-bold uppercase tracking-wide text-orange-300">
-                Promo
+              <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-orange-300">
+                <span>{promos[i].emoji}</span> Promo
               </p>
               <h4 className="mt-1 max-w-[70%] text-base font-black leading-tight text-white">
                 {promos[i].title}
@@ -273,7 +379,7 @@ function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
               <p className="mt-0.5 text-xs text-white/80">{promos[i].sub}</p>
               <button
                 onClick={() => onPick(promos[i].cta)}
-                className="mt-2.5 inline-flex w-fit items-center gap-1 rounded-full bg-white px-3.5 py-1.5 text-[11px] font-bold text-foreground tap-scale"
+                className="mt-2.5 inline-flex w-fit items-center gap-1 rounded-full bg-white px-3.5 py-1.5 text-[11px] font-bold text-foreground shadow tap-scale"
               >
                 {promos[i].cta}
                 <BrooIcon name="ChevronRight" className="h-3.5 w-3.5" />

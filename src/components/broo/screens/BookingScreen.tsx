@@ -69,12 +69,19 @@ export default function BookingScreen() {
     });
 
   return (
-    <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft">
-      <header className="sticky top-0 z-10 bg-card/95 px-5 pb-3 pt-6 backdrop-blur safe-top">
-        <h1 className="text-xl font-black text-foreground">Booking</h1>
-        <p className="text-xs text-muted-foreground">
-          Jadwalkan perjalananmu untuk nanti
-        </p>
+    <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft-warm">
+      <header className="sticky top-0 z-10 bg-broo-header-gradient px-5 pb-4 pt-6 text-white safe-top">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-black">Booking</h1>
+            <p className="text-xs text-white/75">
+              Jadwalkan perjalananmu untuk nanti
+            </p>
+          </div>
+          <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur ring-1 ring-white/30">
+            <span className="text-lg">📅</span>
+          </div>
+        </div>
       </header>
 
       <div className="px-5 pt-3">

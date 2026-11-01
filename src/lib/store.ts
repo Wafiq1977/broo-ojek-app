@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import type { ServiceId, OrderType, Merchant, MenuItem } from "./broo-data";
 
 export type AppPhase = "splash" | "onboarding" | "app";
-export type Tab = "home" | "booking" | "history" | "chat" | "food" | "admin";
+export type Tab = "home" | "booking" | "history" | "chat" | "admin";
 export type Modal =
   | null
   | "driver-info"
@@ -11,7 +11,8 @@ export type Modal =
   | "profile"
   | "notifications"
   | "driver-apply-success"
-  | "merchant-detail";
+  | "merchant-detail"
+  | "merchant-list";
 
 export interface BrooUser {
   id: string;

@@ -15,6 +15,7 @@ export interface ServiceConfig {
   tagline: string;
   description: string;
   icon: string; // lucide icon name (resolved in components)
+  emoji: string; // realistic emoji icon
   color: string; // tailwind gradient classes
   solid: string; // solid bg class
   text: string; // text color class
@@ -31,6 +32,7 @@ export const SERVICES: ServiceConfig[] = [
     tagline: "Ojek motor cepat",
     description: "Antar kamu kemana saja dengan motor. Hemat, cepat, dan lincau di jalanan.",
     icon: "Bike",
+    emoji: "🛵",
     color: "from-orange-400 to-orange-600",
     solid: "bg-orange-500",
     text: "text-orange-600",
@@ -45,6 +47,7 @@ export const SERVICES: ServiceConfig[] = [
     tagline: "Ojek mobil nyaman",
     description: "Naik mobil ber-AC, nyaman untuk berkelompok atau bawa banyak barang.",
     icon: "Car",
+    emoji: "🚗",
     color: "from-amber-400 to-orange-500",
     solid: "bg-amber-500",
     text: "text-amber-600",
@@ -59,6 +62,7 @@ export const SERVICES: ServiceConfig[] = [
     tagline: "Antar makanan & jajan",
     description: "Pesan makanan dari resto langganan, driver Broo yang antar. Tanpa markup harga.",
     icon: "UtensilsCrossed",
+    emoji: "🍜",
     color: "from-rose-400 to-red-500",
     solid: "bg-rose-500",
     text: "text-rose-600",
@@ -73,6 +77,7 @@ export const SERVICES: ServiceConfig[] = [
     tagline: "Jasa titip belanja",
     description: "Titip belanja dari minimarket, apotek, atau toko lain sesuai kebutuhanmu.",
     icon: "ShoppingBag",
+    emoji: "🛍️",
     color: "from-emerald-400 to-green-600",
     solid: "bg-emerald-500",
     text: "text-emerald-600",
@@ -87,6 +92,7 @@ export const SERVICES: ServiceConfig[] = [
     tagline: "Bantuan serba bisa",
     description: "Butuh bantuan? Antar dokumen, jemput barang, atau pekerjaan ringat lainnya.",
     icon: "LifeBuoy",
+    emoji: "🤝",
     color: "from-violet-400 to-purple-600",
     solid: "bg-violet-500",
     text: "text-violet-600",
