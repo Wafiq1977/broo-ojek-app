@@ -129,7 +129,7 @@ export default function Onboarding() {
             className="flex min-h-full flex-col"
           >
             {/* hero */}
-            <div className="relative bg-broo-gradient px-6 pb-20 pt-12 text-center text-white">
+            <div className="relative flex flex-col items-center bg-broo-gradient px-6 pb-20 pt-14 text-center text-white">
               <div className="pointer-events-none absolute inset-0">
                 <div className="absolute -right-10 top-6 h-40 w-40 rounded-full bg-white/15 blur-2xl" />
                 <div className="absolute left-2 top-28 h-32 w-32 rounded-full bg-amber-300/25 blur-2xl" />
@@ -140,7 +140,7 @@ export default function Onboarding() {
                 transition={{ type: "spring", stiffness: 200, damping: 14 }}
                 className="relative mx-auto"
               >
-                <Image src="/broo-logo.png" alt="Broo" width={100} height={100} priority className="drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]" />
+                <Image src="/broo-logo.png" alt="Broo" width={110} height={110} priority className="drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]" />
               </motion.div>
               <h1 className="relative mt-5 text-3xl font-black tracking-tight">Broo</h1>
               <p className="relative mt-1.5 text-sm text-white/85">

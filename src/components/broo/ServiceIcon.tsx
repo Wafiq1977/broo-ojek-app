@@ -1,33 +1,31 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { BrooIcon } from "./BrooIcon";
 
 interface ServiceIconProps {
   icon: string;
-  gradient: string; // tailwind gradient classes — used to derive text color
+  gradient: string; // tailwind gradient classes — used to derive fallback text color
   size?: number;
   className?: string;
   glow?: boolean;
-  /** service id — used to pick the right icon from the sprite */
+  /** service id — used to pick the brand icon image */
   serviceId?: string;
 }
 
-// Map service id -> position in sprite (3 cols x 2 rows)
-// Sprite image: 669x373, 3 columns, 2 rows
-// Background-position percentages (col%, row%)
-const SPRITE_POS: Record<string, string> = {
-  MotorBro: "0% 0%",
-  MobilBro: "50% 0%",
-  MakanBro: "100% 0%",
-  TitipBro: "0% 100%",
-  TolongBro: "50% 100%",
+// Map service id -> brand icon image path
+const SERVICE_ICON_IMG: Record<string, string> = {
+  MotorBro: "/icons/motor.png",
+  MobilBro: "/icons/mobil.png",
+  MakanBro: "/icons/makanan.png",
+  TitipBro: "/icons/jastip.png",
+  TolongBro: "/icons/tolong.png",
 };
 
 /**
- * Standalone colored service icon using the REAL brand icon sprite.
+ * Standalone colored service icon using the REAL brand icon image.
  * No background box/wrapper — just the icon image itself, like Grab's launcher icons.
- * Uses CSS sprite technique to show one icon from a multi-icon image.
  */
 export function ServiceIcon({
   icon,
@@ -37,22 +35,20 @@ export function ServiceIcon({
   glow = false,
   serviceId,
 }: ServiceIconProps) {
-  // If we have a serviceId, use the real brand sprite icon
-  if (serviceId && SPRITE_POS[serviceId]) {
+  // If we have a serviceId, use the real brand icon image
+  if (serviceId && SERVICE_ICON_IMG[serviceId]) {
     return (
       <div
-        className={`relative ${glow ? "drop-shadow-[0_4px_12px_rgba(249,115,22,0.25)]" : ""} ${className}`}
-        style={{ width: size, height: size * 0.82 }}
+        className={`relative ${glow ? "drop-shadow-[0_4px_12px_rgba(249,115,22,0.25)]" : "drop-shadow-sm"} ${className}`}
+        style={{ width: size, height: size }}
       >
-        <div
-          className="h-full w-full bg-no-repeat"
-          style={{
-            backgroundImage: "url('/icons/services-sprite.png')",
-            backgroundSize: "300% 200%",
-            backgroundPosition: SPRITE_POS[serviceId],
-            // shift up slightly to exclude text labels at bottom
-            backgroundPositionY: "calc(50% - 8%)",
-          }}
+        <Image
+          src={SERVICE_ICON_IMG[serviceId]}
+          alt={serviceId}
+          fill
+          className="object-contain"
+          sizes={`${size}px`}
+          priority
         />
       </div>
     );
