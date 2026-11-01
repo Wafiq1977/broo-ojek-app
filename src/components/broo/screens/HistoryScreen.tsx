@@ -104,7 +104,7 @@ export default function HistoryScreen() {
             <p className="text-xs text-white/75">Perjalanan & transaksimu</p>
           </div>
           <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur ring-1 ring-white/30">
-            <span className="text-lg">🧾</span>
+            <BrooIcon name="ReceiptText" className="h-5 w-5" />
           </div>
         </div>
 
@@ -192,7 +192,7 @@ export default function HistoryScreen() {
                     <p className="flex items-center gap-1.5 text-muted-foreground">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                       <span className="truncate">
-                        {o.kind === "food" ? `🍜 ${o.pickup}` : o.pickup}
+                        {o.kind === "food" ? o.pickup : o.pickup}
                       </span>
                     </p>
                     <p className="mt-1 flex items-center gap-1.5 text-muted-foreground">

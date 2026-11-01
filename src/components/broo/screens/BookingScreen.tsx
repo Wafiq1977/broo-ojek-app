@@ -79,7 +79,7 @@ export default function BookingScreen() {
             </p>
           </div>
           <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur ring-1 ring-white/30">
-            <span className="text-lg">📅</span>
+            <BrooIcon name="CalendarClock" className="h-5 w-5" />
           </div>
         </div>
       </header>

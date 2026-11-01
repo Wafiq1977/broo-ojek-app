@@ -15,12 +15,12 @@ interface Conv {
   unread: number;
 }
 
-const SERVICE_EMOJI: Record<string, string> = {
-  MotorBro: "🛵",
-  MobilBro: "🚗",
-  MakanBro: "🍜",
-  TitipBro: "🛍️",
-  TolongBro: "🤝",
+const SERVICE_ICON: Record<string, string> = {
+  MotorBro: "Bike",
+  MobilBro: "Car",
+  MakanBro: "UtensilsCrossed",
+  TitipBro: "ShoppingBag",
+  TolongBro: "LifeBuoy",
 };
 
 export default function ChatScreen() {
@@ -66,7 +66,7 @@ export default function ChatScreen() {
             </p>
           </div>
           <div className="grid h-10 w-10 place-items-center rounded-full bg-white/20 backdrop-blur ring-1 ring-white/30">
-            <span className="text-lg">💬</span>
+            <BrooIcon name="MessageCircle" className="h-5 w-5" />
           </div>
         </div>
 
@@ -91,8 +91,8 @@ export default function ChatScreen() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/50 px-6 py-12 text-center">
-            <div className="grid h-20 w-20 place-items-center rounded-3xl bg-primary/10 text-4xl">
-              💬
+            <div className="grid h-20 w-20 place-items-center rounded-3xl bg-primary/10">
+              <BrooIcon name="MessageCircle" className="h-9 w-9 text-primary" />
             </div>
             <p className="mt-3 text-sm font-black text-foreground">
               {q ? "Tidak ditemukan" : "Belum ada obrolan"}
@@ -147,7 +147,8 @@ export default function ChatScreen() {
                   </div>
                   <p className="mt-0.5 flex items-center gap-1.5">
                     <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary">
-                      {SERVICE_EMOJI[c.service] || "🛵"} {c.service}
+                      <BrooIcon name={SERVICE_ICON[c.service] || "Bike"} className="h-2.5 w-2.5" />
+                      {c.service}
                     </span>
                     <span className={`truncate text-xs ${c.unread > 0 ? "font-semibold text-foreground/80" : "text-muted-foreground"}`}>
                       {c.lastMessage}

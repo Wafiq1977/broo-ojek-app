@@ -60,7 +60,7 @@ export default function MerchantDetail() {
       });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || "Gagal memesan");
-      toast.success(`Pesanan ${merchant.name} terkirim! 🍜`);
+      toast.success(`Pesanan ${merchant.name} terkirim!`);
       bumpHistory();
       clearCart();
       closeMerchant();

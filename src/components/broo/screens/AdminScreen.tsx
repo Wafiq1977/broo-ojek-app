@@ -174,7 +174,7 @@ export default function AdminScreen() {
                     <Row key={o.id} left={o.service} mid={`${o.driverName || "—"} • ${formatIDR(o.price)}`} right={o.status} status={o.status} />
                   ))}
                   {data.recentFoodOrders.slice(0, 3).map((o) => (
-                    <Row key={o.id} left={`🍜 ${o.merchantName}`} mid={formatIDR(o.total)} right={o.status} status={o.status} />
+                    <Row key={o.id} left={`MakanBro — ${o.merchantName}`} mid={formatIDR(o.total)} right={o.status} status={o.status} />
                   ))}
                 </div>
               )}
@@ -185,7 +185,7 @@ export default function AdminScreen() {
                   <Row
                     key={d.id}
                     left={d.name}
-                    mid={`${d.vehicleType === "mobil" ? "🚗" : "🛵"} ${d.plate} • ${d.totalOrders} order`}
+                    mid={`${d.vehicleType === "mobil" ? "Mobil" : "Motor"} • ${d.plate} • ${d.totalOrders} order`}
                     right={`⭐ ${d.rating.toFixed(1)}`}
                   />
                 ))}

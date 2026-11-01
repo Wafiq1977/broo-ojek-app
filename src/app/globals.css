@@ -238,3 +238,63 @@
   scroll-snap-type: x mandatory;
 }
 .scroll-snap-x > * { scroll-snap-align: start; }
+
+/* ===== Wave / liquid indicator effects ===== */
+@keyframes broo-wave {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+.broo-wave-shimmer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.broo-wave-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  animation: broo-wave 2.6s ease-in-out infinite;
+}
+
+@keyframes broo-ripple {
+  0% { transform: scale(0.4); opacity: 0.6; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.broo-ripple {
+  animation: broo-ripple 0.6s ease-out forwards;
+}
+
+/* active icon glow for nav */
+.broo-nav-active {
+  filter: drop-shadow(0 2px 8px oklch(0.65 0.19 45 / 0.45));
+}
+
+/* wave underline for active tab */
+@keyframes broo-wave-line {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(1.15); }
+}
+.broo-wave-line {
+  animation: broo-wave-line 2s ease-in-out infinite;
+}
+
+/* gradient sweep on active toggle */
+@keyframes broo-sweep {
+  0% { background-position: -150% 0; }
+  100% { background-position: 150% 0; }
+}
+.broo-sweep {
+  background-size: 200% 100%;
+  animation: broo-sweep 3s linear infinite;
+}

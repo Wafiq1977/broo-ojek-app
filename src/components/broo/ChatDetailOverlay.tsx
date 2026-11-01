@@ -14,10 +14,10 @@ interface Msg {
 }
 
 const QUICK_REPLIES = [
-  { label: "Saya di mana?", text: "Driver, saya di mana ya?", emoji: "📍" },
-  { label: "Berapa lama?", text: "Berapa lama lagi sampai?", emoji: "⏱️" },
-  { label: "Sudah dekat?", text: "Sudah dekat lokasi jemput?", emoji: "🛵" },
-  { label: "Terima kasih", text: "Terima kasih ya kak 🙏", emoji: "😊" },
+  { label: "Saya di mana?", text: "Driver, saya di mana ya?", icon: "MapPin" },
+  { label: "Berapa lama?", text: "Berapa lama lagi sampai?", icon: "Clock" },
+  { label: "Sudah dekat?", text: "Sudah dekat lokasi jemput?", icon: "Navigation" },
+  { label: "Terima kasih", text: "Terima kasih ya kak", icon: "Heart" },
 ];
 
 export default function ChatDetailOverlay() {
@@ -192,7 +192,7 @@ export default function ChatDetailOverlay() {
 
         {/* info card */}
         <div className="mx-auto mb-4 flex max-w-[90%] items-center gap-2 rounded-2xl bg-primary/8 p-2.5 text-[11px] text-primary">
-          <span>🔒</span> Obrolan diamankan oleh Broo. Mohon jaga sopan santun.
+          <BrooIcon name="ShieldCheck" className="h-3.5 w-3.5 shrink-0 text-primary" /> Obrolan diamankan oleh Broo. Mohon jaga sopan santun.
         </div>
 
         <div className="space-y-2">
@@ -259,7 +259,7 @@ export default function ChatDetailOverlay() {
               onClick={() => send(q.text)}
               className="flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground shadow-broo tap-scale"
             >
-              <span>{q.emoji}</span>
+              <BrooIcon name={q.icon} className="h-3.5 w-3.5 text-primary" />
               {q.label}
             </button>
           ))}

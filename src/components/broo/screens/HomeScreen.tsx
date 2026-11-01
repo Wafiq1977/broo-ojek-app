@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useBroo } from "@/lib/store";
 import { BrooIcon } from "../BrooIcon";
+import { ServiceIcon } from "../ServiceIcon";
 import {
   SERVICES,
   SAVED_PLACES,
@@ -15,6 +16,8 @@ import {
   type ServiceId,
 } from "@/lib/broo-data";
 import { toast } from "sonner";
+
+const DEST_ICONS = ["Plane", "TrainFront", "Landmark", "Palmtree"];
 
 export default function HomeScreen() {
   const user = useBroo((s) => s.user);
@@ -52,7 +55,7 @@ export default function HomeScreen() {
             <div className="text-left">
               <p className="text-[11px] font-medium text-white/75">Halo, selamat datang</p>
               <p className="text-sm font-bold leading-tight">
-                {user?.name?.split(" ")[0] || "Brooer"} 👋
+                {user?.name?.split(" ")[0] || "Brooer"}
               </p>
             </div>
           </button>
@@ -66,9 +69,9 @@ export default function HomeScreen() {
           </button>
         </div>
 
-        {/* location + search */}
+        {/* search */}
         <button
-          onClick={() => toast.info("Cari tujuanmu saat memesan layanan ya 🙂")}
+          onClick={() => toast.info("Cari tujuanmu saat memesan layanan ya")}
           className="mt-4 flex w-full items-center gap-2.5 rounded-2xl bg-white px-4 py-3 text-left text-sm text-muted-foreground shadow-lg shadow-black/10 tap-scale"
         >
           <BrooIcon name="Search" className="h-4 w-4 text-primary" />
@@ -76,32 +79,37 @@ export default function HomeScreen() {
         </button>
       </header>
 
-      {/* now / booking toggle */}
+      {/* now / booking toggle — wave effect */}
       <div className="px-5 pt-4">
         <div className="relative grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1 shadow-broo">
-          {(["now", "booking"] as OrderType[]).map((t) => (
-            <button
-              key={t}
-              onClick={() => setOrderType(t)}
-              className="relative z-10 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-bold tap-scale"
-            >
-              {orderType === t && (
-                <motion.span
-                  layoutId="order-type-pill"
-                  className="absolute inset-0 rounded-xl bg-broo-gradient shadow-broo-primary"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
-              <span
-                className={`relative z-10 inline-flex items-center gap-1.5 ${
-                  orderType === t ? "text-white" : "text-muted-foreground"
-                }`}
+          {(["now", "booking"] as OrderType[]).map((t) => {
+            const active = orderType === t;
+            return (
+              <button
+                key={t}
+                onClick={() => setOrderType(t)}
+                className="relative z-10 flex items-center justify-center gap-1.5 overflow-hidden rounded-xl py-2.5 text-sm font-bold tap-scale"
               >
-                <span>{t === "now" ? "⚡" : "📅"}</span>
-                {t === "now" ? "Pesan Sekarang" : "Booking"}
-              </span>
-            </button>
-          ))}
+                {active && (
+                  <motion.span
+                    layoutId="order-type-wave"
+                    className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl bg-broo-gradient shadow-broo-primary"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  >
+                    <span className="broo-wave-shimmer" />
+                  </motion.span>
+                )}
+                <span
+                  className={`relative z-10 inline-flex items-center gap-1.5 ${
+                    active ? "text-white" : "text-muted-foreground"
+                  }`}
+                >
+                  <BrooIcon name={t === "now" ? "Zap" : "CalendarClock"} className="h-4 w-4" strokeWidth={2.2} />
+                  {t === "now" ? "Pesan Sekarang" : "Booking"}
+                </span>
+              </button>
+            );
+          })}
         </div>
         <p className="mt-2 text-center text-[11px] text-muted-foreground">
           {orderType === "now"
@@ -110,7 +118,7 @@ export default function HomeScreen() {
         </p>
       </div>
 
-      {/* services — realistic emoji icons on premium gradient tiles */}
+      {/* services — professional Lucide icons on gradient tiles */}
       <section className="px-5 pt-4">
         <div className="grid grid-cols-4 gap-2.5">
           {SERVICES.map((s) => (
@@ -120,17 +128,7 @@ export default function HomeScreen() {
               onClick={() => pickService(s.id)}
               className="flex flex-col items-center gap-1.5"
             >
-              <div
-                className={`relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-2xl bg-gradient-to-br ${s.color} shadow-broo`}
-              >
-                {/* gloss highlight */}
-                <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/40 to-transparent" />
-                {/* inner ring */}
-                <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/25" />
-                <span className="relative text-3xl leading-none drop-shadow-sm">
-                  {s.emoji}
-                </span>
-              </div>
+              <ServiceIcon icon={s.icon} gradient={s.color} size={62} />
               <span className="text-[11px] font-bold leading-tight text-foreground">
                 {s.name}
               </span>
@@ -142,7 +140,7 @@ export default function HomeScreen() {
             className="flex flex-col items-center gap-1.5"
           >
             <div className="relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10">
-              <span className="text-3xl leading-none">🙋‍♂️</span>
+              <BrooIcon name="UserPlus" className="h-7 w-7 text-primary" strokeWidth={2} />
             </div>
             <span className="text-[11px] font-bold leading-tight text-primary">
               Jadi Driver
@@ -163,11 +161,13 @@ export default function HomeScreen() {
         />
       </section>
 
-      {/* UMKM kedai — Kedai Favorit horizontal scroll (GoFood style on home) */}
+      {/* UMKM kedai — Kedai Favorit horizontal scroll */}
       <section className="pt-5">
         <div className="mb-2.5 flex items-center justify-between px-5">
           <div className="flex items-center gap-2">
-            <span className="text-lg">🍴</span>
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+              <BrooIcon name="UtensilsCrossed" className="h-4 w-4" />
+            </div>
             <h3 className="text-base font-black text-foreground">Kedai Favorit</h3>
             <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-bold text-primary">
               UMKM
@@ -227,8 +227,8 @@ export default function HomeScreen() {
       {/* value banner */}
       <section className="px-5 pt-4">
         <div className="flex items-center gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500/15 to-teal-500/10 p-3.5">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-lg text-white shadow-broo">
-            💯
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-broo">
+            <BrooIcon name="Percent" className="h-5 w-5" />
           </div>
           <div className="flex-1">
             <p className="text-sm font-black text-foreground">0% Komisi Driver</p>
@@ -243,7 +243,9 @@ export default function HomeScreen() {
       <section className="px-5 pt-5">
         <div className="mb-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-lg">📍</span>
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+              <BrooIcon name="MapPinned" className="h-4 w-4" />
+            </div>
             <h3 className="text-base font-black text-foreground">Tujuan Populer</h3>
           </div>
           <button className="text-xs font-semibold text-primary">Lihat semua</button>
@@ -265,8 +267,8 @@ export default function HomeScreen() {
               }}
               className="flex w-full items-center gap-3 rounded-2xl border border-border bg-broo-card-gradient p-3 text-left shadow-broo tap-scale"
             >
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-lg">
-                {["✈️", "🚉", "🏛️", "🏖️"][i] || "📍"}
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                <BrooIcon name={DEST_ICONS[i] || "MapPin"} className="h-5 w-5" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-bold text-foreground">{p.name}</p>
@@ -350,10 +352,10 @@ export default function HomeScreen() {
 function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
   const [i, setI] = useState(0);
   const promos = [
-    { image: "/promo/promo-1.png", title: "Tanpa Biaya Admin Selamanya", sub: "Harga lebih murah untukmu", cta: "Pesan Sekarang", emoji: "🔥" },
-    { image: "/promo/promo-2.png", title: "MakanBro — Antar Makanan", sub: "Tanpa markup harga resto", cta: "Pesan Makanan", emoji: "🍜" },
-    { image: "/promo/promo-3.png", title: "TitipBro — Jasa Titip Belanja", sub: "Antar dari toko mana saja", cta: "Titip Belanja", emoji: "🛍️" },
-    { image: "/promo/promo-driver.png", title: "Jadi Driver, 100% Tarifmu", sub: "Daftar sekali, untung selamanya", cta: "Lihat Cara Daftar", emoji: "🛵" },
+    { image: "/promo/promo-1.png", title: "Tanpa Biaya Admin Selamanya", sub: "Harga lebih murah untukmu", cta: "Pesan Sekarang", icon: "Percent" },
+    { image: "/promo/promo-2.png", title: "MakanBro — Antar Makanan", sub: "Tanpa markup harga resto", cta: "Pesan Makanan", icon: "UtensilsCrossed" },
+    { image: "/promo/promo-3.png", title: "TitipBro — Jasa Titip Belanja", sub: "Antar dari toko mana saja", cta: "Titip Belanja", icon: "ShoppingBag" },
+    { image: "/promo/promo-driver.png", title: "Jadi Driver, 100% Tarifmu", sub: "Daftar sekali, untung selamanya", cta: "Lihat Cara Daftar", icon: "Bike" },
   ];
   return (
     <div className="px-5">
@@ -370,8 +372,9 @@ function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
             <Image src={promos[i].image} alt={promos[i].title} fill className="object-cover" priority />
             <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-center p-4">
-              <p className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-orange-300">
-                <span>{promos[i].emoji}</span> Promo
+              <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-orange-300">
+                <BrooIcon name={promos[i].icon} className="h-3.5 w-3.5" />
+                Promo
               </p>
               <h4 className="mt-1 max-w-[70%] text-base font-black leading-tight text-white">
                 {promos[i].title}

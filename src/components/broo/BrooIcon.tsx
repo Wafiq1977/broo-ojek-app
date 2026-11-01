@@ -72,6 +72,12 @@ import {
   Users,
   TrendingUp,
   Package,
+  Plane,
+  TrainFront,
+  Landmark,
+  Palmtree,
+  RotateCcw,
+  Heart,
   type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -148,14 +154,21 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   Users,
   TrendingUp,
   Package,
+  Plane,
+  TrainFront,
+  Landmark,
+  Palmtree,
+  RotateCcw,
+  Heart,
 };
 
 export function BrooIcon({
   name,
   className,
   strokeWidth = 2,
+  style,
   ...rest
 }: { name: string } & LucideProps) {
   const Cmp = MAP[name] ?? CircleDot;
-  return <Cmp className={className} strokeWidth={strokeWidth} {...rest} />;
+  return <Cmp className={className} strokeWidth={strokeWidth} style={style} {...rest} />;
 }

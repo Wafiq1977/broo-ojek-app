@@ -41,7 +41,7 @@ export default function MerchantListOverlay() {
         </button>
         <div className="text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-orange-200">
-            <span>🍜</span> MAKANBRO
+            <BrooIcon name="UtensilsCrossed" className="h-3.5 w-3.5" /> MAKANBRO
           </div>
           <h1 className="mt-1 text-xl font-black">Kedai & UMKM Terdaftar</h1>
           <p className="text-xs text-white/75">Pesan makanan tanpa markup harga</p>
