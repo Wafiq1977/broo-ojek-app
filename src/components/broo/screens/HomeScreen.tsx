@@ -43,7 +43,7 @@ export default function HomeScreen() {
   return (
     <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft-warm">
       {/* header */}
-      <header className="sticky top-0 z-20 bg-broo-header-gradient px-5 pb-5 pt-5 text-white safe-top">
+      <header className="sticky top-0 z-20 rounded-b-[2rem] bg-broo-header-gradient px-5 pb-5 pt-5 text-white safe-top shadow-broo-lg">
         <div className="flex items-center justify-between">
           <button onClick={() => openModal("profile")} className="flex items-center gap-2.5 tap-scale">
             <div className="grid h-10 w-10 place-items-center rounded-full bg-white/25 text-sm font-black backdrop-blur ring-1 ring-white/30">

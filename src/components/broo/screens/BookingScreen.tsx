@@ -81,7 +81,7 @@ export default function BookingScreen() {
 
   return (
     <div className="flex h-full flex-col overflow-y-auto broo-scrollbar bg-broo-soft-warm">
-      <header className="sticky top-0 z-10 bg-broo-header-gradient px-5 pb-4 pt-6 text-white safe-top">
+      <header className="sticky top-0 z-10 rounded-b-[2rem] bg-broo-header-gradient px-5 pb-5 pt-6 text-white safe-top shadow-broo-lg">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-black">Booking</h1>
