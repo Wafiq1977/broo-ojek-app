@@ -122,21 +122,23 @@ export const PAYMENT_METHODS = [
   { id: "qris", label: "QRIS", icon: "QrCode", desc: "Scan bayar instan" },
 ] as const;
 
-// Quick location presets for fast demo flow
+// Quick location presets — Bojonegoro, Jawa Timur
 export const QUICK_LOCATIONS = [
-  { name: "Rumah", address: "Jl. Melati No. 12, Jakarta Selatan", icon: "Home" },
-  { name: "Kantor", address: "Menara Broo Lt. 14, Thamrin", icon: "Building2" },
-  { name: "Kampus", address: "Universitas Indonesia, Depok", icon: "GraduationCap" },
-  { name: "Mall", address: "Plaza Indonesia, Thamrin", icon: "Store" },
+  { name: "Rumah", address: "Jl. Diponegoro No. 12, Bojonegoro", icon: "Home" },
+  { name: "Kantor", address: "Kantor Bupati Bojonegoro, Jl. Veteran", icon: "Building2" },
+  { name: "Pasar", address: "Pasar Sumbang Tinanding, Bojonegoro", icon: "Store" },
+  { name: "Stasiun", address: "Stasiun Bojonegoro, Jl. Stasiun", icon: "TrainFront" },
 ];
 
 export const SAVED_PLACES = [
-  { name: "Bandara Soekarno-Hatta", address: "Terminal 3, Cengkareng", km: 24 },
-  { name: "Stasiun Gambir", address: "Gambir, Jakarta Pusat", km: 6.4 },
-  { name: "Monas", address: "Medan Merdeka, Jakarta Pusat", km: 4.1 },
-  { name: "Ancol", address: "Taman Impian Jaya Ancol", km: 11.2 },
-  { name: "Pasar Senen", address: "Pasar Senen, Jakarta Pusat", km: 3.3 },
-  { name: "RS Cipto", address: "RSUP Dr. Cipto Mangunkusumo", km: 5.0 },
+  { name: "Alun-Alun Bojonegoro", address: "Alun-Alun Bojonegoro, Jl. Veteran", km: 1.2 },
+  { name: "Pasar Sumbang Tinanding", address: "Pasar Sumbang Tinanding, Bojonegoro", km: 0.8 },
+  { name: "RSUD dr. Wahidin", address: "RSUD dr. Wahidin Sudirohusodo, Bojonegoro", km: 2.4 },
+  { name: "Stasiun Bojonegoro", address: "Stasiun Bojonegoro, Jl. Stasiun", km: 3.1 },
+  { name: "Mall Bojonegoro City", address: "Bojonegoro City Mall, Jl. Yos Sudarso", km: 1.8 },
+  { name: "Terminal Bojonegoro", address: "Terminal Bus Bojonegoro, Jl. Yos Sudarso", km: 2.0 },
+  { name: "Bendungan Gerak", address: "Bendung Gerak Waluh, Bojonegoro", km: 5.5 },
+  { name: "Wisata Dander", address: "Wisata Dander, Kec. Dander", km: 12.0 },
 ];
 
 export const DRIVER_REGISTRATION_STEPS = [
@@ -189,21 +191,21 @@ export const DRIVER_REGISTRATION_STEPS = [
 
 export const CORPORATE_OFFICES = [
   {
-    city: "Jakarta (Kantor Pusat)",
-    address: "Menara Broo Lt. 14, Jl. M.H. Thamrin No. 10, Jakarta Pusat",
-    hours: "Senin–Sabtu, 09.00–18.00 WIB",
-    phone: "0800-1234-BROO",
-  },
-  {
-    city: "Bandung",
-    address: "Jl. Dipatiukur No. 35, Coblong, Bandung",
-    hours: "Senin–Sabtu, 09.00–17.00 WIB",
+    city: "Bojonegoro (Kantor Pusat)",
+    address: "Jl. Veteran No. 45, Alun-Alun Bojonegoro, Jawa Timur",
+    hours: "Senin–Sabtu, 08.00–17.00 WIB",
     phone: "0800-1234-BROO",
   },
   {
     city: "Surabaya",
-    address: "Jl. Tunjungan No. 88, Surabaya",
+    address: "Jl. Pemuda No. 28, Surabaya, Jawa Timur",
     hours: "Senin–Sabtu, 09.00–17.00 WIB",
+    phone: "0800-1234-BROO",
+  },
+  {
+    city: "Tuban",
+    address: "Jl. Dr. Wahidin No. 12, Tuban, Jawa Timur",
+    hours: "Senin–Sabtu, 09.00–16.00 WIB",
     phone: "0800-1234-BROO",
   },
 ];

@@ -79,7 +79,7 @@ export default function HomeScreen() {
         </button>
       </header>
 
-      {/* now / booking toggle — wave effect */}
+      {/* now / booking toggle — floating island effect */}
       <div className="px-5 pt-4">
         <div className="relative grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1 shadow-broo">
           {(["now", "booking"] as OrderType[]).map((t) => {
@@ -90,10 +90,11 @@ export default function HomeScreen() {
                 onClick={() => setOrderType(t)}
                 className="relative z-10 flex items-center justify-center gap-1.5 overflow-hidden rounded-xl py-2.5 text-sm font-bold tap-scale"
               >
+                {/* floating island background on active */}
                 {active && (
                   <motion.span
-                    layoutId="order-type-wave"
-                    className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl bg-broo-gradient shadow-broo-primary"
+                    layoutId="order-type-island"
+                    className="pointer-events-none absolute inset-0 rounded-xl bg-broo-gradient shadow-broo-primary"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   >
                     <span className="broo-wave-shimmer" />
@@ -118,29 +119,29 @@ export default function HomeScreen() {
         </p>
       </div>
 
-      {/* services — professional Lucide icons on gradient tiles */}
+      {/* services — standalone colored icons (Grab style, no background box) */}
       <section className="px-5 pt-4">
         <div className="grid grid-cols-4 gap-2.5">
           {SERVICES.map((s) => (
             <motion.button
               key={s.id}
-              whileTap={{ scale: 0.92 }}
+              whileTap={{ scale: 0.88 }}
               onClick={() => pickService(s.id)}
               className="flex flex-col items-center gap-1.5"
             >
-              <ServiceIcon icon={s.icon} gradient={s.color} size={62} />
+              <ServiceIcon icon={s.icon} gradient={s.color} size={56} />
               <span className="text-[11px] font-bold leading-tight text-foreground">
                 {s.name}
               </span>
             </motion.button>
           ))}
           <motion.button
-            whileTap={{ scale: 0.92 }}
+            whileTap={{ scale: 0.88 }}
             onClick={() => openModal("driver-info")}
             className="flex flex-col items-center gap-1.5"
           >
-            <div className="relative grid h-[62px] w-[62px] place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10">
-              <BrooIcon name="UserPlus" className="h-7 w-7 text-primary" strokeWidth={2} />
+            <div className="relative grid h-14 w-14 place-items-center">
+              <BrooIcon name="UserPlus" className="h-9 w-9 text-primary" strokeWidth={2} fill="currentColor" fillOpacity={0.15} />
             </div>
             <span className="text-[11px] font-bold leading-tight text-primary">
               Jadi Driver
