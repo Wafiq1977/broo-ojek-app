@@ -208,6 +208,17 @@ export default function OrderFlow() {
   const finishOrder = () => {
     bumpHistory();
     toast.success("Perjalanan selesai! Beri rating ya");
+    // delete associated chat conversation when order completes
+    if (assigned?.orderId) {
+      // best-effort delete — fire and forget
+      fetch("/api/broo/chats", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: assigned.orderId, driverName: assigned.name }),
+      }).catch(() => {});
+    }
+    useBroo.getState().bumpChat();
+    useBroo.setState({ orderMinimized: false });
     clearDraft();
     setStage("form");
     setAssigned(null);
@@ -340,8 +351,8 @@ export default function OrderFlow() {
                 <BrooMap stage={stage} vehicleType={assigned.vehicleType as "motor" | "mobil"} className="h-full w-full" />
               </div>
               <div className="absolute left-4 right-4 top-4 z-10 flex items-center gap-3 safe-top">
-                <button onClick={() => toast.info("Pesanan aktif")} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card shadow-broo tap-scale" aria-label="Kembali">
-                  <BrooIcon name="ChevronLeft" className="h-5 w-5" />
+                <button onClick={() => useBroo.getState().minimizeOrder()} className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-card shadow-broo tap-scale" aria-label="Minimize">
+                  <BrooIcon name="ChevronDown" className="h-5 w-5" />
                 </button>
                 <div className="flex-1 rounded-2xl bg-card/95 px-3.5 py-2 shadow-broo backdrop-blur">
                   <p className="text-xs font-bold text-foreground">

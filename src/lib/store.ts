@@ -58,6 +58,8 @@ interface BrooState {
   phase: AppPhase;
   // promo popup — session only (resets each app open, not persisted)
   homePromoSeen: boolean;
+  // order tracking minimized (so user can access navbar)
+  orderMinimized: boolean;
 
   // user
   user: BrooUser | null;
@@ -83,6 +85,8 @@ interface BrooState {
   // actions
   setPhase: (p: AppPhase) => void;
   markHomePromoSeen: () => void;
+  minimizeOrder: () => void;
+  expandOrder: () => void;
   setUser: (u: BrooUser) => void;
   logout: () => void;
   setTab: (t: Tab) => void;
@@ -123,6 +127,7 @@ export const useBroo = create<BrooState>()(
     (set) => ({
       phase: "splash",
       homePromoSeen: false,
+      orderMinimized: false,
       user: null,
       isRegistered: false,
       activeTab: "home",
@@ -137,6 +142,8 @@ export const useBroo = create<BrooState>()(
 
       setPhase: (p) => set({ phase: p }),
       markHomePromoSeen: () => set({ homePromoSeen: true }),
+      minimizeOrder: () => set({ orderMinimized: true }),
+      expandOrder: () => set({ orderMinimized: false }),
       setUser: (u) => set({ user: u, isRegistered: true }),
       logout: () =>
         set({
@@ -151,6 +158,7 @@ export const useBroo = create<BrooState>()(
           cart: [],
           cartMerchantId: null,
           homePromoSeen: false,
+          orderMinimized: false,
         }),
       setTab: (t) => set({ activeTab: t, modal: null }),
       openModal: (m) => set({ modal: m }),

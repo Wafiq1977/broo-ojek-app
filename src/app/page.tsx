@@ -19,9 +19,9 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center bg-neutral-200 sm:bg-neutral-300 dark:bg-neutral-900">
-      {/* phone frame (desktop) / full (mobile) */}
-      <div className="relative flex h-[100dvh] w-full max-w-[440px] flex-col overflow-hidden bg-background shadow-2xl shadow-black/30 sm:my-4 sm:h-[calc(100dvh-2rem)] sm:rounded-[2.4rem] sm:ring-[10px] sm:ring-neutral-800/90">
+    <main className="relative flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-900">
+      {/* phone frame (desktop) / full (mobile) — smooth rounded corners */}
+      <div className="relative flex h-[100dvh] w-full max-w-[440px] flex-col overflow-hidden bg-background shadow-2xl shadow-black/30 sm:my-4 sm:h-[calc(100dvh-2rem)] sm:rounded-[2.8rem] sm:ring-[12px] sm:ring-neutral-800/90 sm:border-0">
         <AnimatePresence mode="wait">
           {phase === "splash" && (
             <motion.div

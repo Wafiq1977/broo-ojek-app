@@ -127,3 +127,36 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 500 });
   }
 }
+
+// DELETE — remove a conversation (when order completes)
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { orderId, driverName, conversationId } = body ?? {};
+
+    if (conversationId) {
+      await db.chatConversation.delete({ where: { id: conversationId } }).catch(() => {});
+      return NextResponse.json({ ok: true });
+    }
+
+    if (orderId) {
+      const conv = await db.chatConversation.findFirst({ where: { orderId } }).catch(() => null);
+      if (conv) {
+        await db.chatConversation.delete({ where: { id: conv.id } });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (driverName) {
+      const convs = await db.chatConversation.findMany({ where: { driverName } });
+      for (const c of convs) {
+        await db.chatConversation.delete({ where: { id: c.id } }).catch(() => {});
+      }
+      return NextResponse.json({ ok: true, deleted: convs.length });
+    }
+
+    return NextResponse.json({ ok: false, error: "orderId/driverName/conversationId wajib" }, { status: 400 });
+  } catch (e) {
+    return NextResponse.json({ ok: false, error: (e as Error).message }, { status: 500 });
+  }
+}

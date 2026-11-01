@@ -78,6 +78,8 @@ import {
   Palmtree,
   RotateCcw,
   Heart,
+  Image,
+  Camera,
   type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -160,6 +162,8 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   Palmtree,
   RotateCcw,
   Heart,
+  Image,
+  Camera,
 };
 
 export function BrooIcon({
