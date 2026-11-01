@@ -129,7 +129,7 @@ export default function HomeScreen() {
               onClick={() => pickService(s.id)}
               className="flex flex-col items-center gap-1.5"
             >
-              <ServiceIcon icon={s.icon} gradient={s.color} size={56} />
+              <ServiceIcon icon={s.icon} gradient={s.color} size={56} serviceId={s.id} />
               <span className="text-[11px] font-bold leading-tight text-foreground">
                 {s.name}
               </span>

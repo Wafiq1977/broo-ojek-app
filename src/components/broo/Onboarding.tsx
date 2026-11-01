@@ -8,7 +8,7 @@ import { BrooIcon } from "./BrooIcon";
 import { SERVICES } from "@/lib/broo-data";
 import { toast } from "sonner";
 
-type View = "welcome" | "register" | "phone" | "google-loading";
+type View = "welcome" | "register" | "phone" | "google-loading" | "admin";
 
 export default function Onboarding() {
   const setUser = useBroo((s) => s.setUser);
@@ -138,9 +138,9 @@ export default function Onboarding() {
                 initial={{ scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 14 }}
-                className="relative mx-auto grid h-24 w-24 place-items-center rounded-3xl bg-white shadow-xl"
+                className="relative mx-auto"
               >
-                <Image src="/broo-logo.png" alt="Broo" width={64} height={64} priority />
+                <Image src="/broo-logo.png" alt="Broo" width={100} height={100} priority className="drop-shadow-[0_8px_24px_rgba(0,0,0,0.3)]" />
               </motion.div>
               <h1 className="relative mt-5 text-3xl font-black tracking-tight">Broo</h1>
               <p className="relative mt-1.5 text-sm text-white/85">
@@ -219,6 +219,15 @@ export default function Onboarding() {
               >
                 <BrooIcon name="UserPlus" className="h-4 w-4" />
                 Ingin jadi Driver Broo? Lihat cara daftar
+                <BrooIcon name="ChevronRight" className="h-4 w-4" />
+              </button>
+
+              <button
+                onClick={() => setView("admin")}
+                className="mt-3 flex w-full items-center justify-center gap-1.5 text-sm font-semibold text-foreground/60 tap-scale"
+              >
+                <BrooIcon name="ShieldCheck" className="h-4 w-4" />
+                Masuk sebagai Admin Broo
                 <BrooIcon name="ChevronRight" className="h-4 w-4" />
               </button>
             </div>
@@ -479,6 +488,10 @@ export default function Onboarding() {
             </p>
           </motion.div>
         )}
+
+        {view === "admin" && (
+          <AdminLoginView onBack={() => setView("welcome")} onSuccess={() => { setPhase("app"); useBroo.getState().setTab("admin"); }} />
+        )}
       </AnimatePresence>
 
       <style jsx global>{`
@@ -566,5 +579,164 @@ function GoogleIcon({ className }: { className?: string }) {
         d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 01-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
       />
     </svg>
+  );
+}
+
+// ====== Admin Login View ======
+const ADMIN_CREDENTIALS = [
+  { email: "admin@broo.id", phone: "081200000001", password: "broo-admin-2026", name: "Admin Broo Bojonegoro" },
+];
+
+function AdminLoginView({ onBack, onSuccess }: { onBack: () => void; onSuccess: () => void }) {
+  const [mode, setMode] = useState<"email" | "phone">("email");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const setUser = useBroo((s) => s.setUser);
+
+  const submit = () => {
+    const id = mode === "email" ? email.trim().toLowerCase() : phone.trim();
+    if (!id || !password) return toast.error("Lengkapi email/no.telepon & password");
+    setLoading(true);
+
+    setTimeout(() => {
+      const admin = ADMIN_CREDENTIALS.find(
+        (a) =>
+          (mode === "email" ? a.email.toLowerCase() === id : a.phone === id) &&
+          a.password === password
+      );
+      if (!admin) {
+        setLoading(false);
+        return toast.error("Kredensial admin salah. Cek kembali.");
+      }
+      setUser({
+        id: "admin-broo",
+        name: admin.name,
+        phone: admin.phone,
+        email: admin.email,
+        provider: "phone",
+      });
+      toast.success("Selamat datang, Admin Broo!");
+      onSuccess();
+    }, 800);
+  };
+
+  return (
+    <motion.div
+      key="admin"
+      initial={{ opacity: 0, x: 30 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -30 }}
+      className="flex min-h-full flex-col px-6 pb-8 pt-6"
+    >
+      <div className="flex items-center gap-3">
+        <button onClick={onBack} aria-label="Kembali" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card tap-scale">
+          <BrooIcon name="ChevronLeft" className="h-5 w-5" />
+        </button>
+        <h2 className="text-lg font-black">Login Admin</h2>
+      </div>
+
+      <div className="mt-6 text-center">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-broo-dark-gradient text-white shadow-broo-lg">
+          <BrooIcon name="ShieldCheck" className="h-8 w-8" />
+        </div>
+        <h2 className="mt-4 text-xl font-black">Panel Admin Broo</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Khusus admin Broo Bojonegoro. Masuk dengan kredensial admin.
+        </p>
+      </div>
+
+      {/* mode toggle */}
+      <div className="mt-6 grid grid-cols-2 gap-1 rounded-2xl border border-border bg-card p-1">
+        {(["email", "phone"] as const).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={`relative rounded-xl py-2.5 text-sm font-bold tap-scale ${
+              mode === m ? "bg-broo-gradient text-white shadow-md" : "text-muted-foreground"
+            }`}
+          >
+            {m === "email" ? "Email Admin" : "No. Telepon Admin"}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-5 space-y-4">
+        {mode === "email" ? (
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-foreground/70">Email Admin</label>
+            <input
+              className="broo-input"
+              type="email"
+              placeholder="admin@broo.id"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+        ) : (
+          <div>
+            <label className="mb-1.5 block text-xs font-semibold text-foreground/70">No. Telepon Admin</label>
+            <div className="flex items-center gap-2">
+              <span className="rounded-xl bg-secondary px-3 py-2.5 text-sm font-semibold text-foreground/70">+62</span>
+              <input
+                className="broo-input flex-1"
+                inputMode="tel"
+                placeholder="81200000001"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/[^\d]/g, ""))}
+              />
+            </div>
+          </div>
+        )}
+
+        <div>
+          <label className="mb-1.5 block text-xs font-semibold text-foreground/70">Password Admin</label>
+          <div className="relative">
+            <input
+              className="broo-input pr-11"
+              type={showPwd ? "text" : "password"}
+              placeholder="••••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submit()}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              aria-label="Toggle password"
+            >
+              <BrooIcon name={showPwd ? "EyeOff" : "Eye"} className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        <button
+          onClick={submit}
+          disabled={loading}
+          className="w-full rounded-2xl bg-broo-dark-gradient py-3.5 text-sm font-bold text-white shadow-lg disabled:opacity-60 tap-scale"
+        >
+          {loading ? "Memverifikasi…" : "Masuk sebagai Admin"}
+        </button>
+      </div>
+
+      {/* demo credentials hint */}
+      <div className="mt-5 rounded-2xl bg-amber-500/10 p-3 text-[11px] text-amber-700 dark:text-amber-400">
+        <p className="font-bold">Demo Admin Credentials:</p>
+        <p className="mt-0.5">Email: admin@broo.id</p>
+        <p>Password: broo-admin-2026</p>
+        <p className="mt-0.5">Atau Telepon: 081200000001</p>
+      </div>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        Bukan admin?{" "}
+        <button onClick={onBack} className="font-bold text-primary">
+          Kembali ke daftar
+        </button>
+      </p>
+    </motion.div>
   );
 }

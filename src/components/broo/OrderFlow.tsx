@@ -415,7 +415,7 @@ export default function OrderFlow() {
                                 : "border-border bg-card shadow-broo"
                             }`}
                           >
-                            <ServiceIcon icon={s.icon} gradient={s.color} size={50} glow={active} />
+                            <ServiceIcon icon={s.icon} gradient={s.color} size={50} glow={active} serviceId={s.id} />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <p className="text-sm font-black text-foreground">{s.name}</p>
