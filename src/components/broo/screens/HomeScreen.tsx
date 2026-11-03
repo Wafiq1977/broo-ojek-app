@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useBroo } from "@/lib/store";
@@ -102,40 +102,9 @@ export default function HomeScreen() {
         </div>
       </section>
 
-      {/* gallery — real photos showcasing Broo services */}
-      <section className="px-5 pt-6">
-        <div className="mb-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
-              <BrooIcon name="Sparkles" className="h-4 w-4" />
-            </div>
-            <h3 className="text-base font-black text-foreground">Layanan Broo</h3>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          {GALLERY.map((g, i) => (
-            <motion.div
-              key={g.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08 }}
-              className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-broo"
-            >
-              <Image
-                src={g.image}
-                alt={g.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 440px) 50vw, 200px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-3">
-                <p className="text-sm font-black leading-tight text-white">{g.title}</p>
-                <p className="mt-0.5 text-[10px] leading-tight text-white/80">{g.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+      {/* gallery — aesthetic auto-sliding carousel */}
+      <section className="pt-6">
+        <GallerySlider />
       </section>
 
       {/* promo carousel */}
@@ -360,6 +329,125 @@ function PromoCarousel({ onPick }: { onPick: (cta: string) => void }) {
               aria-label={`Promo ${idx + 1}`}
             />
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Aesthetic auto-sliding gallery carousel with parallax zoom + Ken Burns effect */
+function GallerySlider() {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  useEffect(() => {
+    if (paused) return;
+    const t = setInterval(() => {
+      setI((v) => (v + 1) % GALLERY.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, [paused]);
+
+  return (
+    <div className="px-5">
+      <div
+        className="relative overflow-hidden rounded-[2rem] shadow-broo-lg"
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+      >
+        {/* slides */}
+        <div className="relative h-56 w-full">
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 1.08, x: 30 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.98, x: -30 }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-0"
+            >
+              <Image
+                src={GALLERY[i].image}
+                alt={GALLERY[i].title}
+                fill
+                className="object-cover"
+                sizes="(max-width: 440px) 90vw, 400px"
+                priority
+              />
+            </motion.div>
+          </AnimatePresence>
+
+          {/* gradient overlay */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
+
+          {/* top: index badge */}
+          <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 backdrop-blur">
+            <BrooIcon name="Sparkles" className="h-3 w-3 text-orange-300" />
+            <span className="text-[10px] font-bold text-white">Broo Gallery</span>
+          </div>
+
+          {/* content */}
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+              >
+                <p className="text-lg font-black leading-tight text-white drop-shadow">
+                  {GALLERY[i].title}
+                </p>
+                <p className="mt-0.5 text-xs text-white/85">{GALLERY[i].desc}</p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* indicators */}
+            <div className="mt-3 flex items-center gap-1.5">
+              {GALLERY.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setI(idx)}
+                  className="h-1.5 rounded-full transition-all duration-300"
+                  style={{
+                    width: idx === i ? 24 : 6,
+                    backgroundColor: idx === i ? "#F97316" : "rgba(255,255,255,0.4)",
+                  }}
+                  aria-label={`Slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* prev/next arrows */}
+        <button
+          onClick={() => setI((v) => (v - 1 + GALLERY.length) % GALLERY.length)}
+          className="absolute left-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur tap-scale transition hover:bg-black/55"
+          aria-label="Sebelumnya"
+        >
+          <BrooIcon name="ChevronLeft" className="h-5 w-5" />
+        </button>
+        <button
+          onClick={() => setI((v) => (v + 1) % GALLERY.length)}
+          className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-black/35 text-white backdrop-blur tap-scale transition hover:bg-black/55"
+          aria-label="Berikutnya"
+        >
+          <BrooIcon name="ChevronRight" className="h-5 w-5" />
+        </button>
+
+        {/* progress bar at very top */}
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-white/15">
+          <motion.div
+            key={i + (paused ? "p" : "")}
+            initial={{ width: "0%" }}
+            animate={{ width: paused ? "0%" : "100%" }}
+            transition={{ duration: paused ? 0 : 4, ease: "linear" }}
+            className="h-full bg-orange-400"
+          />
         </div>
       </div>
     </div>
