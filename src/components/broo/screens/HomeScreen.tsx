@@ -119,7 +119,7 @@ export default function HomeScreen() {
         />
       </section>
 
-      {/* UMKM kedai — Kedai Favorit horizontal scroll */}
+      {/* UMKM kedai — Kedai Favorit vertical list (one per row) */}
       <section className="pt-5">
         <div className="mb-2.5 flex items-center justify-between px-5">
           <div className="flex items-center gap-2">
@@ -138,45 +138,53 @@ export default function HomeScreen() {
             Lihat semua
           </button>
         </div>
-        <div className="flex gap-3 overflow-x-auto no-scrollbar px-5 pb-1">
-          {MERCHANTS.slice(0, 5).map((m) => (
+        <div className="space-y-2.5 px-5">
+          {MERCHANTS.slice(0, 5).map((m, i) => (
             <motion.button
               key={m.id}
-              whileTap={{ scale: 0.96 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => openMerchant(m)}
-              className="w-[150px] shrink-0 overflow-hidden rounded-2xl border border-border bg-broo-card-gradient text-left shadow-broo tap-scale"
+              className="flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-border bg-broo-card-gradient p-2.5 text-left shadow-broo tap-scale"
             >
-              <div className="relative h-20 w-full overflow-hidden">
-                <Image src={m.cover} alt={m.name} fill className="object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-                {m.promo && (
-                  <span className="absolute left-1.5 top-1.5 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold text-white shadow">
-                    {m.promo}
-                  </span>
-                )}
-                <div className="absolute -bottom-3 left-2">
-                  <div className={`grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br ${m.logoColor} text-xs font-black text-white shadow ring-2 ring-card`}>
-                    {m.name[0]}
-                  </div>
-                </div>
+              {/* cover image — larger, clearer */}
+              <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
+                <Image src={m.cover} alt={m.name} fill className="object-cover" sizes="64px" />
               </div>
-              <div className="px-2 pt-5 pb-2">
-                <p className="truncate text-xs font-black text-foreground">{m.name}</p>
-                <div className="mt-1 flex items-center gap-2 text-[9px] text-muted-foreground">
+              {/* info */}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-black text-foreground">{m.name}</p>
+                  {m.promo && (
+                    <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[8px] font-bold text-white">
+                      {m.promo}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{m.category}</p>
+                <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground">
                   <span className="inline-flex items-center gap-0.5 font-bold text-foreground">
-                    <BrooIcon name="Star" className="h-2.5 w-2.5 fill-amber-400 text-amber-400" />
+                    <BrooIcon name="Star" className="h-3 w-3 fill-amber-400 text-amber-400" />
                     {m.rating.toFixed(1)}
                   </span>
                   <span className="inline-flex items-center gap-0.5">
-                    <BrooIcon name="Clock" className="h-2.5 w-2.5" />
+                    <BrooIcon name="Clock" className="h-3 w-3" />
                     {m.eta}
                   </span>
                   <span className="inline-flex items-center gap-0.5">
-                    <BrooIcon name="Navigation" className="h-2.5 w-2.5" />
+                    <BrooIcon name="Navigation" className="h-3 w-3" />
                     {m.distanceKm}km
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 text-emerald-600">
+                    <BrooIcon name="BadgeCheck" className="h-3 w-3" />
+                    Halal
                   </span>
                 </div>
               </div>
+              {/* chevron */}
+              <BrooIcon name="ChevronRight" className="h-4 w-4 shrink-0 text-muted-foreground" />
             </motion.button>
           ))}
         </div>
