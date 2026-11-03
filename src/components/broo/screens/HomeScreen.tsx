@@ -83,10 +83,11 @@ export default function HomeScreen() {
         </button>
       </header>
 
-      {/* services — standalone colored icons (Grab style, no background box) */}
+      {/* services — 4 di atas, TolongBro + Lainnya di bawah */}
       <section className="px-5 pt-5">
-        <div className="grid grid-cols-5 gap-2">
-          {SERVICES.map((s) => (
+        {/* row 1: MotorBro, MobilBro, MakanBro, TitipBro */}
+        <div className="grid grid-cols-4 gap-2">
+          {SERVICES.filter((s) => ["MotorBro", "MobilBro", "MakanBro", "TitipBro"].includes(s.id)).map((s) => (
             <motion.button
               key={s.id}
               whileTap={{ scale: 0.9 }}
@@ -99,6 +100,34 @@ export default function HomeScreen() {
               </span>
             </motion.button>
           ))}
+        </div>
+        {/* row 2: TolongBro + Lainnya */}
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {SERVICES.filter((s) => s.id === "TolongBro").map((s) => (
+            <motion.button
+              key={s.id}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => pickService(s.id)}
+              className="flex flex-col items-center gap-1.5"
+            >
+              <ServiceIcon icon={s.icon} gradient={s.color} size={52} serviceId={s.id} />
+              <span className="text-[10px] font-bold leading-tight text-foreground text-center">
+                {s.name}
+              </span>
+            </motion.button>
+          ))}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => openModal("more-services")}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <div className="relative grid h-12 w-12 place-items-center overflow-hidden rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 text-primary">
+              <BrooIcon name="MoreHorizontal" className="h-7 w-7" strokeWidth={2.2} />
+            </div>
+            <span className="text-[10px] font-bold leading-tight text-primary text-center">
+              Lainnya
+            </span>
+          </motion.button>
         </div>
       </section>
 

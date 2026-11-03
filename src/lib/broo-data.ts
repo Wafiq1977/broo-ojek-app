@@ -5,7 +5,12 @@ export type ServiceId =
   | "MobilBro"
   | "MakanBro"
   | "TitipBro"
-  | "TolongBro";
+  | "TolongBro"
+  | "KirimBro"
+  | "BelanjaBro"
+  | "LaundryBro"
+  | "BensinBro"
+  | "SehatBro";
 
 export type OrderType = "now" | "booking";
 
@@ -99,6 +104,81 @@ export const SERVICES: ServiceConfig[] = [
     base: 15000,
     perKm: 2200,
     eta: "5 menit",
+    category: "errand",
+  },
+  {
+    id: "KirimBro",
+    name: "KirimBro",
+    tagline: "Kirim paket & dokumen",
+    description: "Kirim paket atau dokumen ke alamat tujuan dengan cepat dan aman.",
+    icon: "Package",
+    emoji: "📦",
+    color: "from-blue-400 to-cyan-600",
+    solid: "bg-blue-500",
+    text: "text-blue-600",
+    base: 10000,
+    perKm: 2000,
+    eta: "5 menit",
+    category: "errand",
+  },
+  {
+    id: "BelanjaBro",
+    name: "BelanjaBro",
+    tagline: "Belanja grosir & sembako",
+    description: "Belanja kebutuhan harian, sembako, atau grosir dari pasar terdekat.",
+    icon: "ShoppingCart",
+    emoji: "🛒",
+    color: "from-lime-400 to-green-600",
+    solid: "bg-lime-500",
+    text: "text-lime-600",
+    base: 12000,
+    perKm: 1800,
+    eta: "8 menit",
+    category: "errand",
+  },
+  {
+    id: "LaundryBro",
+    name: "LaundryBro",
+    tagline: "Antar-jemput laundry",
+    description: "Jemput cucian kotor & antar kembali setelah selesai. Praktis!",
+    icon: "Shirt",
+    emoji: "👕",
+    color: "from-sky-400 to-indigo-600",
+    solid: "bg-sky-500",
+    text: "text-sky-600",
+    base: 15000,
+    perKm: 2000,
+    eta: "10 menit",
+    category: "errand",
+  },
+  {
+    id: "BensinBro",
+    name: "BensinBro",
+    tagline: "Antar bahan bakar",
+    description: "Kehabisan bensin? Broo antar bahan bakar ke lokasimu.",
+    icon: "Fuel",
+    emoji: "⛽",
+    color: "from-amber-500 to-red-600",
+    solid: "bg-amber-500",
+    text: "text-amber-600",
+    base: 25000,
+    perKm: 2500,
+    eta: "7 menit",
+    category: "errand",
+  },
+  {
+    id: "SehatBro",
+    name: "SehatBro",
+    tagline: "Antar obat & apotek",
+    description: "Beli & antar obat dari apotek, atau jemput hasil lab/rs.",
+    icon: "HeartPulse",
+    emoji: "💊",
+    color: "from-rose-400 to-pink-600",
+    solid: "bg-rose-500",
+    text: "text-rose-600",
+    base: 15000,
+    perKm: 2000,
+    eta: "6 menit",
     category: "errand",
   },
 ];

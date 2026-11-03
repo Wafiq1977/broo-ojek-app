@@ -12,7 +12,8 @@ export type Modal =
   | "notifications"
   | "driver-apply-success"
   | "merchant-detail"
-  | "merchant-list";
+  | "merchant-list"
+  | "more-services";
 
 export interface BrooUser {
   id: string;

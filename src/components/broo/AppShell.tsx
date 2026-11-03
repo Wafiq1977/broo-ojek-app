@@ -13,6 +13,7 @@ import OrderFlow from "./OrderFlow";
 import MerchantDetail from "./MerchantDetail";
 import MerchantListOverlay from "./MerchantListOverlay";
 import ChatDetailOverlay from "./ChatDetailOverlay";
+import MoreServicesOverlay from "./MoreServicesOverlay";
 import PromoPopup from "./PromoPopup";
 import { ProfileSheet, NotificationsSheet, ApplySuccessModal } from "./Overlays";
 import { BrooIcon } from "./BrooIcon";
@@ -59,6 +60,7 @@ export default function AppShell() {
           {modal === "driver-apply-success" && <ApplySuccessModal key="ok" />}
           {modal === "merchant-list" && <MerchantListOverlay key="mlist" />}
           {modal === "merchant-detail" && <MerchantDetail key="merchant" />}
+          {modal === "more-services" && <MoreServicesOverlay key="more" />}
         </AnimatePresence>
 
         {/* order flow — always mounted, hidden via CSS when minimized to preserve state */}

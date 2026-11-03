@@ -80,6 +80,11 @@ import {
   Heart,
   Image,
   Camera,
+  ShoppingCart,
+  Shirt,
+  Fuel,
+  HeartPulse,
+  MoreHorizontal,
   type LucideProps,
 } from "lucide-react";
 import type { ComponentType } from "react";
@@ -164,6 +169,11 @@ const MAP: Record<string, ComponentType<LucideProps>> = {
   Heart,
   Image,
   Camera,
+  ShoppingCart,
+  Shirt,
+  Fuel,
+  HeartPulse,
+  MoreHorizontal,
 };
 
 export function BrooIcon({
