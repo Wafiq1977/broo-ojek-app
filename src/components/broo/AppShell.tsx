@@ -100,7 +100,7 @@ export default function AppShell() {
         )}
       </AnimatePresence>
 
-      <BottomNav />
+      <BottomNav disabled={showPromo && activeTab === "home"} />
     </div>
   );
 }

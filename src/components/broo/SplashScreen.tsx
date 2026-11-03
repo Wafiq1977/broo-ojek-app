@@ -36,6 +36,7 @@ export default function SplashScreen() {
       />
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center px-8">
+        {/* Logo only */}
         <motion.div
           initial={{ scale: 0.6, opacity: 0, y: 10 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -60,6 +61,7 @@ export default function SplashScreen() {
           </div>
         </motion.div>
 
+        {/* Wordmark image below logo */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,18 +77,6 @@ export default function SplashScreen() {
             priority
           />
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.4 }}
-          className="mt-4 flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur"
-        >
-          <span className="h-2 w-2 rounded-full bg-emerald-300" />
-          <span className="text-xs font-semibold text-white">
-            Tanpa potongan biaya
-          </span>
-        </motion.div>
       </div>
 
       {/* loader */}
@@ -97,14 +87,6 @@ export default function SplashScreen() {
           transition={{ delay: 0.4, duration: 1.9, ease: "easeInOut" }}
           className="h-1 rounded-full bg-white/85"
         />
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="text-xs font-medium text-white/70"
-        >
-          Menyiapkan perjalananmu…
-        </motion.p>
       </div>
     </div>
   );
