@@ -27,6 +27,7 @@ export default function AppShell() {
   const expandOrder = useBroo((s) => s.expandOrder);
 
   const showPromo = !homePromoSeen;
+  const promoActive = showPromo && activeTab === "home";
   // OrderFlow always mounted but hidden when minimized (preserves tracking state)
   const showOrderFlow = draft;
 
@@ -72,15 +73,15 @@ export default function AppShell() {
         {/* chat overlay (global) */}
         <AnimatePresence>{chatOpen && <ChatDetailOverlay key="chat" />}</AnimatePresence>
 
-        {/* promo popup — appears first time entering Beranda */}
+        {/* promo popup — fullscreen, hides navbar entirely while active */}
         <AnimatePresence>
-          {showPromo && activeTab === "home" && <PromoPopup key="promo" />}
+          {promoActive && <PromoPopup key="promo" />}
         </AnimatePresence>
       </div>
 
       {/* minimized order bar — floats above navbar, always clickable */}
       <AnimatePresence>
-        {draft && orderMinimized && (
+        {draft && orderMinimized && !promoActive && (
           <motion.button
             initial={{ y: 80, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -100,7 +101,20 @@ export default function AppShell() {
         )}
       </AnimatePresence>
 
-      <BottomNav disabled={showPromo && activeTab === "home"} />
+      {/* Navbar — hidden entirely when promo popup is active */}
+      <AnimatePresence>
+        {!promoActive && (
+          <motion.div
+            key="navbar"
+            initial={{ y: 80, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          >
+            <BottomNav />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

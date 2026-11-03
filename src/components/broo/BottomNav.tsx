@@ -11,16 +11,14 @@ const ITEMS: { id: Tab; label: string; icon: string }[] = [
   { id: "chat", label: "Obrolan", icon: "MessageCircle" },
 ];
 
-export default function BottomNav({ disabled = false }: { disabled?: boolean }) {
+export default function BottomNav() {
   const activeTab = useBroo((s) => s.activeTab);
   const setTab = useBroo((s) => s.setTab);
 
   return (
     <nav
-      className={`relative z-30 shrink-0 bg-card/90 backdrop-blur-xl safe-bottom transition-all duration-300 ${disabled ? "opacity-40 pointer-events-none" : ""}`}
-      style={{
-        boxShadow: disabled ? "none" : "0 -1px 12px rgba(0,0,0,0.04)",
-      }}
+      className="relative z-30 shrink-0 bg-card/90 backdrop-blur-xl safe-bottom"
+      style={{ boxShadow: "0 -1px 12px rgba(0,0,0,0.04)" }}
     >
       {/* thin top divider line, very subtle */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
@@ -30,8 +28,7 @@ export default function BottomNav({ disabled = false }: { disabled?: boolean }) 
           return (
             <button
               key={it.id}
-              onClick={() => !disabled && setTab(it.id)}
-              disabled={disabled}
+              onClick={() => setTab(it.id)}
               className="relative flex flex-col items-center justify-center gap-1 py-1.5 transition-opacity"
               aria-label={it.label}
             >
