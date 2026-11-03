@@ -18,6 +18,13 @@ import { toast } from "sonner";
 
 const DEST_ICONS = ["Plane", "TrainFront", "Landmark", "Palmtree"];
 
+const GALLERY = [
+  { image: "/gallery/pengemudi.jpg", title: "Pengemudi Broo", desc: "Driver siap menjemput" },
+  { image: "/gallery/mobil.jpg", title: "MobilBro", desc: "Nyaman ber-AC" },
+  { image: "/gallery/serah-terima.jpg", title: "TitipBro", desc: "Antar belanjaan" },
+  { image: "/gallery/bantuan.jpg", title: "TolongBro", desc: "Bantuan kapan saja" },
+];
+
 export default function HomeScreen() {
   const user = useBroo((s) => s.user);
   const openModal = useBroo((s) => s.openModal);
@@ -91,6 +98,42 @@ export default function HomeScreen() {
                 {s.name}
               </span>
             </motion.button>
+          ))}
+        </div>
+      </section>
+
+      {/* gallery — real photos showcasing Broo services */}
+      <section className="px-5 pt-6">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary">
+              <BrooIcon name="Sparkles" className="h-4 w-4" />
+            </div>
+            <h3 className="text-base font-black text-foreground">Layanan Broo</h3>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {GALLERY.map((g, i) => (
+            <motion.div
+              key={g.title}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="group relative aspect-[4/5] overflow-hidden rounded-3xl shadow-broo"
+            >
+              <Image
+                src={g.image}
+                alt={g.title}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 440px) 50vw, 200px"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-3">
+                <p className="text-sm font-black leading-tight text-white">{g.title}</p>
+                <p className="mt-0.5 text-[10px] leading-tight text-white/80">{g.desc}</p>
+              </div>
+            </motion.div>
           ))}
         </div>
       </section>

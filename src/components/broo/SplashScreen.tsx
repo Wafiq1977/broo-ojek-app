@@ -78,16 +78,6 @@ export default function SplashScreen() {
           />
         </motion.div>
       </div>
-
-      {/* loader */}
-      <div className="absolute bottom-14 left-0 right-0 flex flex-col items-center gap-3">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: "44%" }}
-          transition={{ delay: 0.4, duration: 1.9, ease: "easeInOut" }}
-          className="h-1 rounded-full bg-white/85"
-        />
-      </div>
     </div>
   );
 }
