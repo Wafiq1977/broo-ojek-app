@@ -64,21 +64,23 @@ export default function SplashScreen() {
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-7 text-center"
+          className="mt-8"
         >
-          <h1 className="text-4xl font-extrabold tracking-tight text-white drop-shadow">
-            Broo
-          </h1>
-          <p className="mt-1.5 text-sm font-medium text-white/85">
-            Ojek online dari rakyat untuk rakyat
-          </p>
+          <Image
+            src="/broo-wordmark.png"
+            alt="Broo by OJEK"
+            width={180}
+            height={60}
+            className="drop-shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+            priority
+          />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.4 }}
-          className="mt-3 flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur"
+          className="mt-4 flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 backdrop-blur"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-300" />
           <span className="text-xs font-semibold text-white">
