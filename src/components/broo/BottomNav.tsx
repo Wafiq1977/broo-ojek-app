@@ -16,55 +16,53 @@ export default function BottomNav() {
   const setTab = useBroo((s) => s.setTab);
 
   return (
-    <nav
-      className="relative z-30 shrink-0 bg-card/90 backdrop-blur-xl safe-bottom"
-      style={{ boxShadow: "0 -1px 12px rgba(0,0,0,0.04)" }}
-    >
-      {/* thin top divider line, very subtle */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
-      <div className="grid grid-cols-4 px-3 pt-2.5 pb-2">
-        {ITEMS.map((it) => {
-          const active = activeTab === it.id;
-          return (
-            <button
-              key={it.id}
-              onClick={() => setTab(it.id)}
-              className="relative flex flex-col items-center justify-center gap-1 py-1.5 transition-opacity"
-              aria-label={it.label}
-            >
-              {/* Active pill background — smooth slide */}
-              {active && (
+    <div className="px-4 pb-3 safe-bottom">
+      <nav
+        className="relative z-30 rounded-[1.75rem] bg-white shadow-[0_4px_24px_rgba(0,0,0,0.10)] ring-1 ring-black/[0.04]"
+      >
+        <div className="grid grid-cols-4 px-2 py-2.5">
+          {ITEMS.map((it) => {
+            const active = activeTab === it.id;
+            return (
+              <button
+                key={it.id}
+                onClick={() => setTab(it.id)}
+                className="relative flex flex-col items-center justify-center gap-1 py-1.5"
+                aria-label={it.label}
+              >
+                {/* Active pill background — smooth slide */}
+                {active && (
+                  <motion.span
+                    layoutId="nav-active-pill"
+                    className="pointer-events-none absolute inset-x-2 inset-y-0 rounded-[1.25rem]"
+                    style={{ backgroundColor: "#FFF0E5" }}
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                {/* Icon with subtle scale */}
                 <motion.span
-                  layoutId="nav-active-pill"
-                  className="pointer-events-none absolute inset-x-3 inset-y-0 rounded-2xl bg-primary/10"
-                  transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                />
-              )}
-              {/* Icon */}
-              <motion.span
-                animate={{ scale: active ? 1.1 : 1, y: active ? -1 : 0 }}
-                transition={{ type: "spring", stiffness: 380, damping: 26 }}
-                className="relative"
-              >
-                <BrooIcon
-                  name={it.icon}
-                  className={`h-[22px] w-[22px] transition-colors duration-200 ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  strokeWidth={active ? 2.4 : 1.9}
-                />
-              </motion.span>
-              <span
-                className={`relative text-[10px] font-medium transition-colors duration-200 ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                {it.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-    </nav>
+                  animate={{ scale: active ? 1.12 : 1, y: active ? -1 : 0 }}
+                  transition={{ type: "spring", stiffness: 380, damping: 26 }}
+                  className="relative"
+                >
+                  <BrooIcon
+                    name={it.icon}
+                    className="h-[22px] w-[22px] transition-colors duration-200"
+                    style={{ color: active ? "#FF6A00" : "#858585" }}
+                    strokeWidth={active ? 2.4 : 2}
+                  />
+                </motion.span>
+                <span
+                  className="relative text-[10px] font-semibold transition-colors duration-200"
+                  style={{ color: active ? "#FF6A00" : "#858585" }}
+                >
+                  {it.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 }
